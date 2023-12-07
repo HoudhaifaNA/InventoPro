@@ -14,13 +14,15 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
 }
 
-const secondaryClassNames = 'text-slate-800 bg-transparent enabled:hover:bg-slate-100';
+const primaryClassNames = 'bg-rose-600 text-white enabled:hover:bg-rose-700 enabled:hover:border-rose-700';
+const secondaryClassNames = 'text-rose-700 bg-transparent enabled:hover:bg-rose-100';
 const lightClassNames = `${secondaryClassNames} border-none`;
 
 const Button = (props: ButtonProps) => {
   const { variant = 'primary', loading, loadingText, icon, iconPosition = 'l', disabled, onClick, children } = props;
 
   const classNames = {
+    [primaryClassNames]: variant === 'primary',
     [secondaryClassNames]: variant === 'secondary',
     [lightClassNames]: variant === 'light',
     'opacity-60': disabled || loading,
@@ -31,15 +33,17 @@ const Button = (props: ButtonProps) => {
   return (
     <button
       className={clsx(
-        'flex min-w-[80px] items-center	gap-2 rounded border border-slate-800 bg-slate-800 px-4 py-2 text-sm font-medium text-white outline-none transition-all  enabled:hover:bg-slate-900 disabled:cursor-not-allowed',
+        'flex min-w-[80px] items-center	gap-2 rounded border border-rose-600  px-4 py-2 text-sm font-medium  outline-none transition-all disabled:cursor-not-allowed',
         classNames
       )}
       onClick={onClick}
       disabled={disabled || loading}
     >
-      {loading && <Icon icon='spinner' className='h-5 w-5 animate-spin text-current' />}
       {iconPosition === 'l' && renderIcon}
-      {loading && loadingText ? loadingText : children}
+      <span className='flex flex-1 items-center justify-center gap-2 font-semibold'>
+        {loading && <Icon icon='spinner' className='h-5 w-5 animate-spin text-current' />}
+        {loading && loadingText ? loadingText : children}
+      </span>
       {iconPosition === 'r' && renderIcon}
     </button>
   );
