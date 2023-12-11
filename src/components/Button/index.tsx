@@ -28,7 +28,7 @@ const Button = (props: ButtonProps) => {
     [lightClassNames]: variant === 'light',
     'opacity-60': disabled || loading,
     'min-w-[80px] px-4 py-2': isChildrenString,
-    'w-9 h-9': !isChildrenString,
+    'min-w-[36px] w-9 min-h-[36px] h-9': !isChildrenString,
   };
 
   const renderIcon = icon && !loading && isChildrenString && <Icon icon={icon} className='h-5 w-5 text-current' />;
