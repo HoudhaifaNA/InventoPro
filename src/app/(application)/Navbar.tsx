@@ -61,7 +61,7 @@ const NavbarList = () => {
 
 const Navbar = () => {
   return (
-    <nav className='flex h-16 items-center justify-between bg-indigo-950 px-2 md:px-4 lg:px-12'>
+    <nav className='flex h-16 items-center justify-between bg-indigo-950 px-2 md:px-4 lg:px-6'>
       <h1 className='text-lg font-bold text-rose-500'>inventoPro</h1>
       <NavbarList />
       <Button>Se déconnecter</Button>
