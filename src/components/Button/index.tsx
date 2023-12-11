@@ -20,20 +20,23 @@ const lightClassNames = `${secondaryClassNames} border-none`;
 
 const Button = (props: ButtonProps) => {
   const { variant = 'primary', loading, loadingText, icon, iconPosition = 'l', disabled, onClick, children } = props;
+  const isChildrenString = typeof children === 'string';
 
   const classNames = {
     [primaryClassNames]: variant === 'primary',
     [secondaryClassNames]: variant === 'secondary',
     [lightClassNames]: variant === 'light',
     'opacity-60': disabled || loading,
+    'min-w-[80px] px-4 py-2': isChildrenString,
+    'w-9 h-9': !isChildrenString,
   };
 
-  const renderIcon = icon && !loading && <Icon icon={icon} className='h-5 w-5 text-current' />;
+  const renderIcon = icon && !loading && isChildrenString && <Icon icon={icon} className='h-5 w-5 text-current' />;
 
   return (
     <button
       className={clsx(
-        'flex min-w-[80px] items-center	gap-2 rounded border border-rose-600  px-4 py-2 text-sm font-medium  outline-none transition-all disabled:cursor-not-allowed',
+        'flex items-center gap-2 rounded border border-rose-600  text-sm font-medium  outline-none transition-all disabled:cursor-not-allowed',
         classNames
       )}
       onClick={onClick}
@@ -41,7 +44,7 @@ const Button = (props: ButtonProps) => {
     >
       {iconPosition === 'l' && renderIcon}
       <span className='flex flex-1 items-center justify-center gap-2 font-semibold'>
-        {loading && <Icon icon='spinner' className='h-5 w-5 animate-spin text-current' />}
+        {loading && isChildrenString && <Icon icon='spinner' className='h-5 w-5 animate-spin text-current' />}
         {loading && loadingText ? loadingText : children}
       </span>
       {iconPosition === 'r' && renderIcon}

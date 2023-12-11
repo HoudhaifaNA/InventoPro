@@ -50,18 +50,18 @@ const NavbarList = () => {
             className='flex h-full items-center gap-2 text-sm font-semibold capitalize text-white outline-none'
           >
             <Icon icon={icon} className='h-5 w-5 fill-white' />
-            <span>{title}</span>
+            <span className='hidden lg:inline'>{title}</span>
           </Link>
         </li>
       );
     });
   };
-  return <ul className='flex h-full  list-none items-center gap-8'>{renderListItems()}</ul>;
+  return <ul className='flex h-full  list-none items-center gap-2 lg:gap-8'>{renderListItems()}</ul>;
 };
 
 const Navbar = () => {
   return (
-    <nav className='flex h-16 items-center justify-between bg-indigo-950 px-12'>
+    <nav className='flex h-16 items-center justify-between bg-indigo-950 px-2 md:px-4 lg:px-12'>
       <h1 className='text-lg font-bold text-rose-500'>inventoPro</h1>
       <NavbarList />
       <Button>Se déconnecter</Button>
