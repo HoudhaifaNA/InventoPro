@@ -4,7 +4,7 @@ import LoginForm from '@/app/LoginForm';
 
 export default function Home() {
   return (
-    <main className='max-w-screen relative flex min-h-screen  items-center justify-between bg-gradient-to-bl	from-indigo-500 to-indigo-900 p-4 md:h-screen'>
+    <main className='max-w-screen relative flex min-h-screen items-center justify-between bg-gradient-to-bl	from-indigo-500 to-indigo-900 p-4'>
       <div>
         <Image
           className='hidden md:block'

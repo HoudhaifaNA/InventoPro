@@ -5,7 +5,7 @@ import Button from '@/components/Button';
 
 const LoginForm = () => {
   return (
-    <div className='flex h-full basis-full  flex-col items-center gap-14 rounded-md bg-white p-4 md:basis-2/3 lg:basis-2/5'>
+    <div className='flex basis-full  flex-col items-center gap-14 rounded-md bg-white p-4 pb-36 md:basis-2/3 lg:basis-2/5'>
       <div className='flex flex-col items-center gap-2 text-center'>
         <h1 className='flex h-48 items-center text-5xl font-bold text-rose-600'>inventoPro</h1>
         <h1 className='text-4xl font-bold'>Content de te revoir!</h1>

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import clsx from 'clsx';
 
 import Button from '@/components/Button';
 import Icon from '@/components/Icon';
@@ -29,7 +28,7 @@ const Switcher = ({ options, handleSelect }: SwitcherProps) => {
 
       return (
         <Button variant={isSelected ? 'primary' : 'light'} onClick={handleClick} key={payload}>
-          {icon && <Icon icon={icon} className={clsx('h-5 w-5', isSelected ? 'fill-white' : 'fill-rose-600')} />}
+          {icon && <Icon icon={icon} className='h-5 w-5' />}
           {title}
         </Button>
       );
