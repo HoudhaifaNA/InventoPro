@@ -1,5 +1,4 @@
 'use client';
-import React from 'react';
 import { TextInput } from '@tremor/react';
 
 import Button from '@/components/Button';
@@ -7,8 +6,8 @@ import Icon from '@/components/Icon';
 import Switcher, { Option } from '@/components/Switcher';
 
 const optionsList: Option[] = [
-  { payload: 'grid', icon: 'grid_view' },
   { payload: 'list', icon: 'list_view' },
+  { payload: 'grid', icon: 'grid_view' },
 ];
 
 const Header = () => {

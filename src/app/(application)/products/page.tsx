@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
+
 import Filter from './Filter';
-import ProductsList from './ProductsList';
+import ProductsSection from './ProductsSection';
 
 export const metadata: Metadata = {
   title: 'Produits | inventoPro',
@@ -8,9 +9,9 @@ export const metadata: Metadata = {
 
 const ProductsPage = () => {
   return (
-    <div className='flex min-h-screen gap-4 px-2 md:px-4 lg:px-6'>
+    <div className='flex min-h-screen gap-6 px-2 md:px-4 lg:px-6'>
       <Filter />
-      <ProductsList />
+      <ProductsSection />
     </div>
   );
 };
