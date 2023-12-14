@@ -1,9 +1,9 @@
-import Navigation from '@/app/(application)/Navbar';
+import Navbar from '@/app/(application)/Navbar';
 
 export default function ApplicationLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div>
-      <Navigation />
+    <div className='h-screen'>
+      <Navbar />
       {children}
     </div>
   );
