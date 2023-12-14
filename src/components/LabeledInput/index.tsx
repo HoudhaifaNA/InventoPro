@@ -2,11 +2,12 @@ import { ReactElement, cloneElement } from 'react';
 import clsx from 'clsx';
 
 interface LabeledInputProps {
-  id: string;
+  id?: string;
   label: string;
   color?: 'white' | 'black';
   children: ReactElement | JSX.Element;
 }
+
 const LabeledInput = ({ id, label, color = 'black', children }: LabeledInputProps) => {
   const clonedChildren = cloneElement(children, { id });
 
