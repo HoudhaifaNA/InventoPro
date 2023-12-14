@@ -30,13 +30,13 @@ const ProductItem = (props: ProductItemProps) => {
     <div
       className={clsx(
         'flex gap-6 rounded bg-neutral-100 p-4 shadow-sm',
-        isGridDisplay ? 'col-span-1	flex-col' : 'h-28 w-full flex-row items-center'
+        isGridDisplay ? 'col-span-1	flex-col' : 'h-28 w-full min-w-[1000px] flex-row items-center'
       )}
     >
       <div
         className={clsx(
           'relative overflow-hidden rounded bg-indigo-200',
-          isGridDisplay ? 'h-56 min-h-[224px] w-full' : 'h-20 w-20'
+          isGridDisplay ? 'h-56 min-h-[224px] w-full' : 'h-20 min-h-[80px] w-20 min-w-[80px]'
         )}
       >
         <Image src={`/${image}`} alt='product' fill />
@@ -73,14 +73,14 @@ const ProductItem = (props: ProductItemProps) => {
           )}
         </div>
       </div>
-      <div className='flex basis-1/4 items-end justify-between'>
+      <div className='flex min-w-[25%] basis-1/4 items-end justify-between'>
         <div className='flex flex-col justify-between gap-6 text-sm'>
-          <span className='text-xs uppercase opacity-80'>Prix ​​en détail</span>
-          <span className='font-semibold'>{retailPrice}.00 DA</span>
+          <span className='whitespace-nowrap text-xs uppercase opacity-80'>Prix ​​en détail</span>
+          <span className='whitespace-nowrap font-semibold'>{retailPrice}.00 DA</span>
         </div>
         <div className='flex flex-col justify-between gap-6 text-sm'>
-          <span className='text-xs uppercase opacity-80'>Prix ​​de gros</span>
-          <span className='font-semibold'>{wholesalePrice}.00 DA</span>
+          <span className='whitespace-nowrap text-xs uppercase opacity-80'>Prix ​​de gros</span>
+          <span className='whitespace-nowrap font-semibold'>{wholesalePrice}.00 DA</span>
         </div>
       </div>
 

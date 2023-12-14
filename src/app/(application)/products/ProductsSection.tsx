@@ -99,17 +99,19 @@ display = 'list';
 
 const ProductsSection = () => {
   return (
-    <div className='flex flex-1 flex-col overflow-x-auto'>
+    <div className='flex flex-1 flex-col overflow-x-auto pl-0.5'>
       <Header />
-      <div
-        className={clsx(
-          'overflow-x-auto py-4',
-          display === 'grid' ? 'grid auto-rows-fr grid-cols-2 gap-4 lg:grid-cols-4' : 'table space-y-4'
-        )}
-      >
-        {products.map((pr, i) => {
-          return <ProductItem {...pr} display={display} key={i} />;
-        })}
+      <div className='overflow-y-auto pr-1'>
+        <div
+          className={clsx(
+            'w-full overflow-auto py-4',
+            display === 'grid' ? 'grid auto-rows-fr grid-cols-2 gap-4 lg:grid-cols-4' : 'flex flex-col space-y-4'
+          )}
+        >
+          {products.map((pr, i) => {
+            return <ProductItem {...pr} display={display} key={i} />;
+          })}
+        </div>
       </div>
     </div>
   );
