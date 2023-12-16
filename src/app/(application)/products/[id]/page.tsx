@@ -3,7 +3,7 @@ import ProductThumbnail from './ProductThumbnail';
 
 const ProductDetailsPage = () => {
   return (
-    <div className='flex h-[92%] gap-8 overflow-auto px-2 py-8 md:px-4 lg:px-6'>
+    <div className='flex gap-8 overflow-auto py-8'>
       <ProductThumbnail />
       <ProductDetails />
     </div>
