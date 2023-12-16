@@ -8,6 +8,11 @@ import Icon from '@/components/Icon';
 
 const LINKS = [
   {
+    link: '/dashboard',
+    title: 'tableau de bord',
+    icon: 'dashboard',
+  },
+  {
     link: '/products',
     title: 'produits',
     icon: 'product',
@@ -16,11 +21,6 @@ const LINKS = [
     link: '/shipments',
     title: 'expéditions',
     icon: 'shipment',
-  },
-  {
-    link: '/finance',
-    title: 'finance',
-    icon: 'finance',
   },
   {
     link: '/stock',
