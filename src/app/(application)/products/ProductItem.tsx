@@ -42,11 +42,11 @@ const ProductItem = (props: ProductItemProps) => {
         <Image src={`/${image}`} alt='product' fill />
       </div>
       <div className='flex flex-1 flex-col gap-4'>
-        <Link href=''>
+        <Link href='/products/id'>
           <p className='truncate text-sm font-semibold'>{name}</p>
         </Link>
         <span className='text-xs font-medium'>
-          <b>Ref :</b> #{refrence}
+          <b>Réf :</b> #{refrence}
         </span>
         <div className='flex flex-wrap items-center gap-2 text-xs font-medium'>
           <Link href='/'>
