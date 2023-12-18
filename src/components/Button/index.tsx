@@ -1,16 +1,15 @@
 'use client';
 import { ButtonHTMLAttributes, ReactNode } from 'react';
-import clsx from 'clsx';
 
 import Icon from '@/components/Icon';
+import cn from '@/utils/cn';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'light';
-  loading?: boolean;
   icon?: string;
   iconPosition?: 'r' | 'l';
+  loading?: boolean;
   loadingText?: string;
-  disabled?: boolean;
   children: ReactNode;
 }
 
@@ -19,10 +18,20 @@ const secondaryClassNames = 'text-rose-600 fill-rose-600 bg-transparent enabled:
 const lightClassNames = `${secondaryClassNames} border-none`;
 
 const Button = (props: ButtonProps) => {
-  const { variant = 'primary', loading, loadingText, icon, iconPosition = 'l', disabled, onClick, children } = props;
+  const {
+    variant = 'primary',
+    loading,
+    loadingText,
+    icon,
+    iconPosition = 'l',
+    disabled,
+    children,
+    className,
+    ...restProps
+  } = props;
   const isChildrenString = typeof children === 'string';
 
-  const classNames = {
+  const styles = {
     [primaryClassNames]: variant === 'primary',
     [secondaryClassNames]: variant === 'secondary',
     [lightClassNames]: variant === 'light',
@@ -35,12 +44,13 @@ const Button = (props: ButtonProps) => {
 
   return (
     <button
-      className={clsx(
+      className={cn(
         'flex items-center justify-center gap-2 rounded border border-rose-600  text-sm font-medium  outline-none transition-all disabled:cursor-not-allowed',
-        classNames
+        styles,
+        className
       )}
-      onClick={onClick}
       disabled={disabled || loading}
+      {...restProps}
     >
       {iconPosition === 'l' && renderIcon}
       <span className='flex items-center justify-center gap-2 font-semibold'>
