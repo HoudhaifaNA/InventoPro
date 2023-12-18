@@ -9,6 +9,20 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      keyframes: {
+        popup: {
+          '0%': { transform: 'translate(-50%, -50%) scale(0.9)' },
+          '100%': { transform: 'translate(-50%, -50%) scale(1)' },
+        },
+        closeSignal: {
+          '0%': { transform: 'translate(-50%, -50%) scale(0.99)' },
+          '100%': { transform: 'translate(-50%, -50%) scale(1)' },
+        },
+      },
+      animation: {
+        popup: 'popup 0.15s ease forwards',
+        closeSignal: 'closeSignal 0.15s ease forwards',
+      },
       colors: {
         tremor: {
           brand: {
