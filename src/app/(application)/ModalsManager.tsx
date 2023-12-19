@@ -2,13 +2,13 @@
 import { useState } from 'react';
 
 import Modal from '@/components/Modal';
-import AddShipmentForm from './shipments/AddShipmentForm';
+import AddProductForm from './products/AddProductForm';
 
 const MODALS = [
   {
-    id: 'add-shipment',
-    title: 'Ajouter un expédition',
-    children: AddShipmentForm,
+    id: 'add-product',
+    title: 'Ajouter un produit',
+    children: AddProductForm,
   },
 ];
 
