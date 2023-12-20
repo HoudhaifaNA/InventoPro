@@ -63,7 +63,9 @@ const AddProductForm = () => {
           <NumberInput placeholder='1590' enableStepper={false} />
         </LabeledInput>
       </FormRow>
-      <DropzoneSpace />
+      <LabeledInput label='Image :'>
+        <DropzoneSpace />
+      </LabeledInput>
       <div className='modal-actions flex w-full items-center justify-end gap-4 border-t border-neutral-300 bg-white p-4'>
         <Button variant='light'>Annuler</Button>
         <Button type='submit' form={FORM_ID}>
