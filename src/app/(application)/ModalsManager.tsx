@@ -2,15 +2,13 @@
 import { useState } from 'react';
 
 import Modal from '@/components/Modal';
-import CancelSaleForm from './products/CancelSaleForm';
 
-const MODALS = [
-  {
-    id: 'sell-product',
-    title: 'Annuler la vente',
-    children: CancelSaleForm,
-  },
-];
+interface IModal {
+  id: string;
+  title: string;
+  children: () => JSX.Element;
+}
+const MODALS: IModal[] = [];
 
 const ModalsManager = () => {
   const [modalsList, setModalsList] = useState(MODALS);
