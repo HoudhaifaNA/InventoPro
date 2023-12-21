@@ -13,7 +13,7 @@ const FormStepOne = () => {
         </LabeledInput>
         <LabeledInput label='Liste de produits :' className='flex-1'>
           <MultiSelect placeholder='Sélectionner...' placeholderSearch='Recherche'>
-            <Button type='button' variant='light' icon='add' className='w-full justify-start rounded-none px-[7px]'>
+            <Button variant='light' icon='add' className='w-full justify-start rounded-none px-[7px]'>
               Ajouter un produit
             </Button>
             <MultiSelectItem value='1'>Produit 1</MultiSelectItem>

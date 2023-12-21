@@ -44,7 +44,7 @@ const Modal = ({ title, zIndexMultiplier = 1, children }: ModalProps) => {
           className='flex cursor-grab items-center justify-between gap-4 border-b border-neutral-300 px-4 py-2 active:cursor-grabbing '
         >
           <h1 className='truncate text-base font-semibold'>{title}</h1>
-          <Button variant='light'>
+          <Button variant='light' squared>
             <Icon icon='close' className='h-5 w-5' />
           </Button>
         </div>

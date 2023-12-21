@@ -9,13 +9,13 @@ const FormStepTwo = () => {
   return (
     <>
       <FormRow>
-        <Button type='button' variant='light' icon='add' className='pl-0'>
+        <Button variant='light' icon='add' className='pl-0'>
           Locale
         </Button>
-        <Button type='button' variant='light' icon='add' className='pl-0'>
+        <Button variant='light' icon='add' className='pl-0'>
           Dollar
         </Button>
-        <Button type='button' variant='light' icon='add' className='pl-0'>
+        <Button variant='light' icon='add' className='pl-0'>
           Yuan
         </Button>
       </FormRow>
@@ -56,10 +56,7 @@ const FormStepTwo = () => {
         <LabeledInput id='cost' label='Coût :' className='flex-1'>
           <NumberInput placeholder='170' min={0} enableStepper={false} />
         </LabeledInput>
-        <Button
-          type='button'
-          className='absolute right-0 opacity-0 transition-opacity group-hover:static  group-hover:opacity-100'
-        >
+        <Button className='absolute right-0 opacity-0 transition-opacity group-hover:static  group-hover:opacity-100'>
           <Icon icon='close' className='h-5 w-5' />
         </Button>
       </FormRow>

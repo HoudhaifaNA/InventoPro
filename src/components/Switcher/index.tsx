@@ -11,10 +11,11 @@ export interface Option {
 
 interface SwitcherProps {
   options: Option[];
+  squared?: boolean;
   handleSelect: (payload: Option['payload']) => void;
 }
 
-const Switcher = ({ options, handleSelect }: SwitcherProps) => {
+const Switcher = ({ options, squared, handleSelect }: SwitcherProps) => {
   const [selectedOption, selectOption] = useState(options[0].payload);
 
   const renderOptions = () => {
@@ -27,7 +28,13 @@ const Switcher = ({ options, handleSelect }: SwitcherProps) => {
       };
 
       return (
-        <Button variant={isSelected ? 'primary' : 'light'} onClick={handleClick} key={payload}>
+        <Button
+          variant={isSelected ? 'primary' : 'light'}
+          className='flex-1'
+          squared={squared}
+          onClick={handleClick}
+          key={payload}
+        >
           {icon && <Icon icon={icon} className='h-5 w-5' />}
           {title}
         </Button>

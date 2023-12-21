@@ -20,7 +20,7 @@ const Header = () => {
           placeholder='Recherche...'
           icon={() => <Icon icon='search' className='h-5 w-5 opacity-60' />}
         />
-        <Switcher options={optionsList} handleSelect={(payload) => console.log(payload)} />
+        <Switcher options={optionsList} squared handleSelect={(payload) => console.log(payload)} />
       </div>
       <Button>Ajouter un produit</Button>
     </div>

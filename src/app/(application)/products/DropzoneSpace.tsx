@@ -40,9 +40,7 @@ const DropzoneSpace = () => {
           <Icon icon='upload' className='h-8 w-8 text-neutral-500' />
           <span>Glisser déposer</span>
           <span>ou</span>
-          <Button type='button' value='light'>
-            Parcourir des fichiers
-          </Button>
+          <Button value='light'>Parcourir des fichiers</Button>
         </div>
       )}
       {files.map(({ base64 }, i) => (

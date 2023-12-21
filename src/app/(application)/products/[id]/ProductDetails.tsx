@@ -29,7 +29,7 @@ const ProductDetails = () => {
         <ProductDetailItem label='prix de gros' value='239.00 DA' />
         <div className='flex gap-2'>
           <Button>Ajouter une expédition</Button>
-          <Button variant='light'>
+          <Button variant='light' squared>
             <Icon icon='more_horiz' className='h-5 w-5' />
           </Button>
         </div>
