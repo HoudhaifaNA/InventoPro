@@ -2,13 +2,13 @@
 import { useState } from 'react';
 
 import Modal from '@/components/Modal';
-import SellProductForm from './products/SellProductForm';
+import CancelSaleForm from './products/CancelSaleForm';
 
 const MODALS = [
   {
     id: 'sell-product',
-    title: 'Vendu un produit',
-    children: SellProductForm,
+    title: 'Annuler la vente',
+    children: CancelSaleForm,
   },
 ];
 

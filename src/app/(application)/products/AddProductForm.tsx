@@ -69,7 +69,7 @@ const AddProductForm = () => {
       <div className='modal-actions flex w-full items-center justify-end gap-4 border-t border-neutral-300 bg-white p-4'>
         <Button variant='light'>Annuler</Button>
         <Button type='submit' form={FORM_ID}>
-          Suivante
+          Ajouter
         </Button>
       </div>
     </form>
