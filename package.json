@@ -9,8 +9,9 @@
     "dev": "concurrently -n \"NEXT,ELECTRON\" -c \"yellow,blue\" --kill-others \"next dev\" \"tsc -p background && electron .\"",
     "build": "next build && electron-builder",
     "start": "next start",
-    "db:push": "drizzle-kit push:sqlite",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:migrate": "drizzle-kit generate:sqlite --out src/drizzle --schema src/db/schema.ts",
+    "db:push": "drizzle-kit push:sqlite"
   },
   "dependencies": {
     "@tremor/react": "^3.11.1",
@@ -18,11 +19,13 @@
     "clsx": "^2.0.0",
     "drizzle-orm": "^0.29.1",
     "electron-serve": "^1.2.0",
+    "nanoid": "^5.0.4",
     "next": "14.0.3",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.3.1",
     "@types/better-sqlite3": "^7.6.8",
     "@types/node": "^20",
     "@types/react": "^18",
