@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "fe229690-4506-4434-bafc-004b01d3a620",
+  "id": "6b18358d-ce06-43ad-a63f-af0a603e7d66",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "products": {
@@ -50,6 +50,13 @@
           "autoincrement": false,
           "default": 0
         },
+        "current_shipment_id": {
+          "name": "current_shipment_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "retail_price": {
           "name": "retail_price",
           "type": "integer",
@@ -72,7 +79,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "default": "(datetime('now','localtime'))"
         },
         "updated_at": {
           "name": "updated_at",
@@ -80,7 +87,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "default": "(datetime('now','localtime'))"
         }
       },
       "indexes": {
@@ -92,7 +99,113 @@
           "isUnique": true
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "products_current_shipment_id_shipments_id_fk": {
+          "name": "products_current_shipment_id_shipments_id_fk",
+          "tableFrom": "products",
+          "tableTo": "shipments",
+          "columnsFrom": [
+            "current_shipment_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "sales": {
+      "name": "sales",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sold_at": {
+          "name": "sold_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(datetime('now','localtime'))"
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "price": {
+          "name": "price",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "total": {
+          "name": "total",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(datetime('now','localtime'))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(datetime('now','localtime'))"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sales_product_id_products_id_fk": {
+          "name": "sales_product_id_products_id_fk",
+          "tableFrom": "sales",
+          "tableTo": "products",
+          "columnsFrom": [
+            "product_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -142,13 +255,21 @@
           "autoincrement": false,
           "default": 0
         },
+        "total": {
+          "name": "total",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
         "created_at": {
           "name": "created_at",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "default": "(datetime('now','localtime'))"
         },
         "updated_at": {
           "name": "updated_at",
@@ -156,7 +277,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "default": "(datetime('now','localtime'))"
         }
       },
       "indexes": {
@@ -188,6 +309,30 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "unit_price": {
+          "name": "unit_price",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "total_price": {
+          "name": "total_price",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
         }
       },
       "indexes": {},

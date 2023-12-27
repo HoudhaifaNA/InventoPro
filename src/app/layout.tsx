@@ -4,6 +4,9 @@ import clsx from 'clsx';
 
 import './globals.css';
 
+// import seed from '@/db/seed';
+// seed();
+
 const poppins = Poppins({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700', '800', '900'],
