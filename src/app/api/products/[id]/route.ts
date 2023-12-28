@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 
 import { db } from '@/db';
-import { ProductInsert, products } from '@/db/schema';
+import { ProductInsert, products, shipments, shipmentsToProducts } from '@/db/schema';
 import formatDateTime from '@/utils/formatDateTime';
 import { DynamicAPIRouteParams } from '@/types';
 import { calculatePriceByPercentage } from '@/utils/calculations';
@@ -97,7 +97,28 @@ export async function DELETE(_request: NextRequest, { params }: DynamicAPIRouteP
   try {
     const { id } = params;
 
-    await db.delete(products).where(eq(products.id, id));
+    const idsList = id.split(',');
+
+    db.transaction((tx) => {
+      const deletedShipmentsToProducts = tx
+        .delete(shipmentsToProducts)
+        .where(inArray(shipmentsToProducts.productId, idsList))
+        .returning()
+        .all();
+
+      deletedShipmentsToProducts.forEach(({ shipmentId, totalPrice }) => {
+        tx.update(shipments)
+          .set({
+            productsCount: sql`${shipments.productsCount} - 1`,
+            total: sql`${shipments.total} - ${totalPrice}`,
+            updatedAt: formatDateTime(new Date()),
+          })
+          .where(eq(shipments.id, shipmentId))
+          .run();
+      });
+
+      tx.delete(products).where(inArray(products.id, idsList)).run();
+    });
 
     return new Response(null, { status: 204 });
   } catch (err) {

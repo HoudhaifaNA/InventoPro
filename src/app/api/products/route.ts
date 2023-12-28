@@ -10,7 +10,7 @@ export async function GET() {
         columns: {
           productId: false,
           shipmentId: true,
-          price: true,
+          unitPrice: true,
           quantity: true,
         },
 

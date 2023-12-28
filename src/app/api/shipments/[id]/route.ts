@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 
 import { db } from '@/db';
 import { ShipmentInsert, ShipmentToProductInsert, products, shipments, shipmentsToProducts } from '@/db/schema';
@@ -83,37 +83,33 @@ export async function PATCH(request: NextRequest, { params }: DynamicAPIRoutePar
           totalPrice,
         };
 
-        (async () => {
-          const [oldShipmentProduct] = await tx
-            .select()
-            .from(shipmentsToProducts)
-            .where(and(eq(shipmentsToProducts.shipmentId, updatedShipment.id), eq(shipmentsToProducts.productId, id)));
+        const oldShipmentProduct = tx
+          .select()
+          .from(shipmentsToProducts)
+          .where(and(eq(shipmentsToProducts.shipmentId, updatedShipment.id), eq(shipmentsToProducts.productId, id)))
+          .get();
 
-          await tx
-            .update(products)
-            .set({ stock: sql`${products.stock} - ${oldShipmentProduct.quantity || 0} + ${quantity}`, updatedAt })
-            .where(eq(products.id, id))
+        tx.update(products)
+          .set({ stock: sql`${products.stock} - ${oldShipmentProduct?.quantity || 0} + ${quantity}`, updatedAt })
+          .where(eq(products.id, id))
+          .run();
+
+        tx.update(products)
+          .set({
+            retailPrice: sql`((${products.retailPercentage} * ${unitPrice}) / 100 ) + ${unitPrice}`,
+            wholesalePrice: sql`((${products.wholesalePercentage} * ${unitPrice}) / 100 ) + ${unitPrice}`,
+          })
+          .where(eq(products.currentShipmentId, updatedShipment.id))
+          .run();
+
+        if (oldShipmentProduct) {
+          tx.update(shipmentsToProducts)
+            .set(shipmentToProductBody)
+            .where(and(eq(shipmentsToProducts.shipmentId, updatedShipment.id), eq(shipmentsToProducts.productId, id)))
             .run();
-
-          await tx
-            .update(products)
-            .set({
-              retailPrice: sql`((${products.retailPercentage} * ${unitPrice}) / 100 ) + ${unitPrice}`,
-              wholesalePrice: sql`((${products.wholesalePercentage} * ${unitPrice}) / 100 ) + ${unitPrice}`,
-            })
-            .where(eq(products.currentShipmentId, updatedShipment.id))
-            .run();
-
-          if (oldShipmentProduct) {
-            await tx
-              .update(shipmentsToProducts)
-              .set(shipmentToProductBody)
-              .where(and(eq(shipmentsToProducts.shipmentId, updatedShipment.id), eq(shipmentsToProducts.productId, id)))
-              .run();
-          } else {
-            await tx.insert(shipmentsToProducts).values(shipmentToProductBody).run();
-          }
-        })();
+        } else {
+          tx.insert(shipmentsToProducts).values(shipmentToProductBody).run();
+        }
       });
 
       return updatedShipment;
@@ -133,7 +129,33 @@ export async function DELETE(_request: NextRequest, { params }: DynamicAPIRouteP
   try {
     const { id } = params;
 
-    await db.delete(products).where(eq(products.id, id));
+    const idsList = id.split(',');
+
+    const productsWithShipment = await db.select().from(products).where(inArray(products.currentShipmentId, idsList));
+
+    if (productsWithShipment.length > 0) {
+      return NextResponse.json({ message: 'currentShipmentId error' }, { status: 401, statusText: 'Server error' });
+    }
+
+    db.transaction((tx) => {
+      const deletedShipmentsToProducts = tx
+        .delete(shipmentsToProducts)
+        .where(inArray(shipmentsToProducts.shipmentId, idsList))
+        .returning()
+        .all();
+
+      deletedShipmentsToProducts.forEach(({ productId, quantity }) => {
+        tx.update(products)
+          .set({
+            stock: sql`${products.stock} -  ${quantity}`,
+            updatedAt: formatDateTime(new Date()),
+          })
+          .where(eq(products.id, productId))
+          .run();
+      });
+
+      tx.delete(shipments).where(inArray(shipments.id, idsList)).run();
+    });
 
     return new Response(null, { status: 204 });
   } catch (err) {
