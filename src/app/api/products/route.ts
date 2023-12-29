@@ -11,21 +11,26 @@ enum ORDER_BY {
   WHOLESALE_PRICE = 'wholesalePrice',
 }
 
-function isOrderBy(param: string | null): param is ORDER_BY {
+const isOrderBy = (param: string | null): param is ORDER_BY => {
   return Object.values(ORDER_BY).includes(param as any);
-}
+};
 
-function getStockQuery(stock: string | null): number[] | undefined {
-  const stockArr: number[] = [];
+const formRange = (ranges: string) => {
+  const rangesArr = [0, Infinity];
 
-  if (stock && stock.split('_').length === 2) {
-    stock.split('_').forEach((value) => {
-      if (!isNaN(Number(value))) stockArr.push(Number(value));
-    });
-  }
+  ranges.split('_').forEach((range, ind) => {
+    if (!isNaN(parseInt(range))) rangesArr[ind] = parseInt(range);
+  });
+
+  return rangesArr;
+};
+
+const getStockQuery = (stock: string | null) => {
+  let stockArr: number[] = [];
+  if (stock) stockArr = formRange(stock);
 
   return stockArr.length === 2 ? stockArr : undefined;
-}
+};
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -33,8 +38,13 @@ export async function GET(request: NextRequest) {
   const company = searchParams.get('company');
   const category = searchParams.get('category');
   const stock = searchParams.get('stock');
+  const retailPrice = searchParams.get('retailPrice');
+  const wholesalePrice = searchParams.get('wholesalePrice');
+
   let orderByParam: string;
   let order: 'asc' | 'desc';
+  let rPrices: number[];
+  let wPrices: number[];
 
   if (orderBy && orderBy.length > 1) {
     orderByParam = orderBy.startsWith('-') ? orderBy.split('-')[1] : orderBy;
@@ -42,6 +52,8 @@ export async function GET(request: NextRequest) {
   }
 
   const stockNumbers = getStockQuery(stock);
+  if (retailPrice) rPrices = formRange(retailPrice);
+  if (wholesalePrice) wPrices = formRange(wholesalePrice);
 
   // STOCK STATUS HANDLING (FILTER AND SHOW)
 
@@ -57,8 +69,10 @@ export async function GET(request: NextRequest) {
       let companyQuery = company ? eq(products.company, company) : undefined;
       let categoryQuery = category ? eq(products.category, category) : undefined;
       let stockQuery = stockNumbers ? between(products.stock, stockNumbers[0], stockNumbers[1]) : undefined;
+      let retailPriceQuery = retailPrice ? between(products.retailPrice, rPrices[0], rPrices[1]) : undefined;
+      let wholesalePriceQuery = wholesalePrice ? between(products.wholesalePrice, wPrices[0], wPrices[1]) : undefined;
 
-      return and(companyQuery, categoryQuery, stockQuery);
+      return and(companyQuery, categoryQuery, stockQuery, retailPriceQuery, wholesalePriceQuery);
     },
     with: {
       shipments: {
