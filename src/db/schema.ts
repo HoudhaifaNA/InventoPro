@@ -10,6 +10,7 @@ export const products = sqliteTable('products', {
     .$defaultFn(() => nanoid()),
   name: text('name').notNull(),
   ref: text('ref').unique(),
+  thumbnail: text('thumbnail'),
   company: text('company'),
   category: text('category'),
   stock: integer('stock').notNull().default(0),

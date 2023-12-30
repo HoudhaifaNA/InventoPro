@@ -29,6 +29,10 @@ seed.ts
 # vercel
 .vercel
 
+
+#upload
+public/uploads/*
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

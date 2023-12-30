@@ -2,6 +2,8 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 import { db } from '@/db';
 import { ProductInsert, products } from '@/db/schema';
+import handleFileUpload from './handleFileUpload';
+import deleteFile from './deleteFile';
 
 enum ORDER_BY {
   NAME = 'name',
@@ -99,20 +101,34 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  let thumbnail;
+
   try {
-    const body = await request.json();
-    const { name, ref, company, category, stock, retailPrice, wholesalePrice } = body;
+    const data = await request.formData();
+
+    const body: any = {};
+    data.forEach((value, key) => (body[key] = value));
+
+    const { name, ref, company, category, stock, retailPrice, file, wholesalePrice } = body;
+
+    const isValidFile = file instanceof File && file.type.startsWith('image');
+
+    if (isValidFile) {
+      thumbnail = await handleFileUpload(file);
+    }
+
     const newProductBody: ProductInsert = {
       name,
       ref,
       company,
+      thumbnail,
       category,
       stock,
       retailPrice,
       wholesalePrice,
     };
 
-    const [newProduct] = await db.insert(products).values(newProductBody).returning();
+    const newProduct = db.insert(products).values(newProductBody).returning().get();
 
     return NextResponse.json(
       { message: 'Product created', product: newProduct },
@@ -120,6 +136,11 @@ export async function POST(request: NextRequest) {
     );
   } catch (err) {
     console.log(err);
+
+    if (thumbnail) {
+      deleteFile(thumbnail);
+    }
+
     if (err instanceof Error) {
       return NextResponse.json({ message: err.message }, { status: 500, statusText: err.name });
     }

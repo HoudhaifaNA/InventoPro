@@ -5,7 +5,8 @@ import { db } from '@/db';
 import { ProductInsert, products, shipments, shipmentsToProducts } from '@/db/schema';
 import formatDateTime from '@/utils/formatDateTime';
 import { DynamicAPIRouteParams } from '@/types';
-import { calculatePriceByPercentage } from '@/utils/calculations';
+import handleFileUpload from '../handleFileUpload';
+import deleteFile from '../deleteFile';
 
 const queryProduct = async (id: string) => {
   const product = await db.query.products.findFirst({
@@ -42,12 +43,23 @@ export async function GET(_request: NextRequest, { params }: DynamicAPIRoutePara
 }
 
 export async function PATCH(request: NextRequest, { params }: DynamicAPIRouteParams) {
+  const { id } = params;
+  const product = await queryProduct(id);
+  const oldThumbnail = product?.thumbnail;
+  let thumbnail = null;
+
   try {
-    const { id } = params;
-    const body = await request.json();
+    if (!product) {
+      throw Error('Product not found');
+    }
+    const data = await request.formData();
+    const body: any = {};
+    data.forEach((value, key) => (body[key] = value));
+
     const {
       name,
       ref,
+      file,
       company,
       category,
       currentShipmentId,
@@ -57,7 +69,14 @@ export async function PATCH(request: NextRequest, { params }: DynamicAPIRoutePar
       wholesalePrice,
     } = body;
 
-    const product = await queryProduct(id);
+    const isValidFile = file instanceof File && file.type.startsWith('image');
+    const isSameFile = file?.name === oldThumbnail;
+
+    if (isValidFile && !isSameFile) {
+      thumbnail = await handleFileUpload(file);
+    } else if (isSameFile) {
+      thumbnail = oldThumbnail;
+    }
 
     const shipmentIndex = product?.shipments.findIndex((shipment) => shipment.shipmentId === currentShipmentId);
 
@@ -68,6 +87,7 @@ export async function PATCH(request: NextRequest, { params }: DynamicAPIRoutePar
     const productBody: ProductInsert = {
       name,
       ref,
+      thumbnail,
       company,
       category,
       currentShipmentId,
@@ -80,12 +100,21 @@ export async function PATCH(request: NextRequest, { params }: DynamicAPIRoutePar
 
     const [updatedProduct] = await db.update(products).set(productBody).where(eq(products.id, id)).returning();
 
+    if ((thumbnail && oldThumbnail && !isSameFile) || (!thumbnail && oldThumbnail)) {
+      deleteFile(oldThumbnail);
+    }
+
     return NextResponse.json(
       { message: 'Product updated', product: updatedProduct },
       { status: 200, statusText: 'success' }
     );
   } catch (err) {
     console.log(err);
+
+    if (thumbnail && thumbnail !== oldThumbnail) {
+      deleteFile(thumbnail);
+    }
+
     if (err instanceof Error) {
       return NextResponse.json({ message: err.message }, { status: 500, statusText: err.name });
     }
@@ -117,7 +146,12 @@ export async function DELETE(_request: NextRequest, { params }: DynamicAPIRouteP
           .run();
       });
 
-      tx.delete(products).where(inArray(products.id, idsList)).run();
+      const deletedProducts = tx.delete(products).where(inArray(products.id, idsList)).returning().all();
+      deletedProducts.forEach(({ thumbnail }) => {
+        if (thumbnail) {
+          deleteFile(thumbnail);
+        }
+      });
     });
 
     return new Response(null, { status: 204 });
