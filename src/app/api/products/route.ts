@@ -57,13 +57,7 @@ export async function GET(request: NextRequest) {
   if (retailPrice) rPrices = formRange(retailPrice);
   if (wholesalePrice) wPrices = formRange(wholesalePrice);
 
-  // STOCK STATUS HANDLING (FILTER AND SHOW)
-
-  // COMPANY AND CATEGORY HANDLING
-
-  // SALES TABLE
-
-  const products = await db.query.products.findMany({
+  const productsList = await db.query.products.findMany({
     orderBy: (products, oper) => {
       return isOrderBy(orderByParam) ? [oper[order](products[orderByParam])] : [oper.desc(products.createdAt)];
     },
@@ -97,7 +91,20 @@ export async function GET(request: NextRequest) {
     },
   });
 
-  return NextResponse.json({ results: products.length, products }, { status: 200, statusText: 'success' });
+  const companiesList = await db
+    .select({ company: products.company })
+    .from(products)
+    .groupBy((t) => [t.company]);
+
+  const categoriesList = await db
+    .select({ category: products.category })
+    .from(products)
+    .groupBy((t) => [t.category]);
+
+  return NextResponse.json(
+    { results: productsList.length, products: productsList, companiesList, categoriesList },
+    { status: 200, statusText: 'success' }
+  );
 }
 
 export async function POST(request: NextRequest) {
