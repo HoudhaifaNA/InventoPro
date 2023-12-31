@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { like, eq, between, and } from 'drizzle-orm';
 
 import { db } from '@/db';
 import { ProductInsert, products } from '@/db/schema';
@@ -13,29 +14,30 @@ enum ORDER_BY {
   WHOLESALE_PRICE = 'wholesalePrice',
 }
 
-const isOrderBy = (param: string | null): param is ORDER_BY => {
-  return Object.values(ORDER_BY).includes(param as any);
+const isOrderBy = (orderByValue: string | null): orderByValue is ORDER_BY => {
+  return Object.values(ORDER_BY).includes(orderByValue as any);
 };
 
-const formRange = (ranges: string) => {
-  const rangesArr = [0, Infinity];
-
-  ranges.split('_').forEach((range, ind) => {
-    if (!isNaN(parseInt(range))) rangesArr[ind] = parseInt(range);
+const parseRange = (value: string): number[] => {
+  const rangeArr = [0, Infinity];
+  value.split('_').forEach((range, ind) => {
+    if (!isNaN(parseInt(range))) rangeArr[ind] = parseInt(range);
   });
-
-  return rangesArr;
+  return rangeArr;
 };
 
 const getStockQuery = (stock: string | null) => {
   let stockArr: number[] = [];
-  if (stock) stockArr = formRange(stock);
+  if (stock) stockArr = parseRange(stock);
 
   return stockArr.length === 2 ? stockArr : undefined;
 };
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
+
+  const query = searchParams.get('q');
+  const page = searchParams.get('page');
   const orderBy = searchParams.get('orderBy');
   const company = searchParams.get('company');
   const category = searchParams.get('category');
@@ -43,33 +45,44 @@ export async function GET(request: NextRequest) {
   const retailPrice = searchParams.get('retailPrice');
   const wholesalePrice = searchParams.get('wholesalePrice');
 
+  const pageNumber = page && !isNaN(parseInt(page)) ? parseInt(page) : 1;
+  const limit = 5;
+  const offset = limit * pageNumber - limit;
+
   let orderByParam: string;
   let order: 'asc' | 'desc';
   let rPrices: number[];
   let wPrices: number[];
 
-  if (orderBy && orderBy.length > 1) {
-    orderByParam = orderBy.startsWith('-') ? orderBy.split('-')[1] : orderBy;
+  if (orderBy) {
+    orderByParam = orderBy.replace('-', '');
     order = orderBy.startsWith('-') ? 'desc' : 'asc';
   }
 
   const stockNumbers = getStockQuery(stock);
-  if (retailPrice) rPrices = formRange(retailPrice);
-  if (wholesalePrice) wPrices = formRange(wholesalePrice);
+  if (retailPrice) rPrices = parseRange(retailPrice);
+  if (wholesalePrice) wPrices = parseRange(wholesalePrice);
+
+  const generateFilter = () => {
+    let searchQuery = query ? like(products.name, `%${query}%`) : undefined;
+    let companyQuery = company ? eq(products.company, company) : undefined;
+    let categoryQuery = category ? eq(products.category, category) : undefined;
+    let stockQuery = stockNumbers ? between(products.stock, stockNumbers[0], stockNumbers[1]) : undefined;
+    let retailPriceQuery = retailPrice ? between(products.retailPrice, rPrices[0], rPrices[1]) : undefined;
+    let wholesalePriceQuery = wholesalePrice ? between(products.wholesalePrice, wPrices[0], wPrices[1]) : undefined;
+
+    return and(searchQuery, companyQuery, categoryQuery, stockQuery, retailPriceQuery, wholesalePriceQuery);
+  };
+
+  const allProducts = await db.query.products.findMany({ where: generateFilter() });
 
   const productsList = await db.query.products.findMany({
     orderBy: (products, oper) => {
       return isOrderBy(orderByParam) ? [oper[order](products[orderByParam])] : [oper.desc(products.createdAt)];
     },
-    where: (products, { eq, between, and }) => {
-      let companyQuery = company ? eq(products.company, company) : undefined;
-      let categoryQuery = category ? eq(products.category, category) : undefined;
-      let stockQuery = stockNumbers ? between(products.stock, stockNumbers[0], stockNumbers[1]) : undefined;
-      let retailPriceQuery = retailPrice ? between(products.retailPrice, rPrices[0], rPrices[1]) : undefined;
-      let wholesalePriceQuery = wholesalePrice ? between(products.wholesalePrice, wPrices[0], wPrices[1]) : undefined;
-
-      return and(companyQuery, categoryQuery, stockQuery, retailPriceQuery, wholesalePriceQuery);
-    },
+    where: generateFilter(),
+    limit,
+    offset,
     with: {
       shipments: {
         columns: {
@@ -102,7 +115,7 @@ export async function GET(request: NextRequest) {
     .groupBy((t) => [t.category]);
 
   return NextResponse.json(
-    { results: productsList.length, products: productsList, companiesList, categoriesList },
+    { results: allProducts.length, start: offset + 1, products: productsList, companiesList, categoriesList },
     { status: 200, statusText: 'success' }
   );
 }
