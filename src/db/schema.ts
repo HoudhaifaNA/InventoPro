@@ -111,6 +111,18 @@ export const salesRelations = relations(sales, ({ one }) => ({
   }),
 }));
 
+export const users = sqliteTable('users', {
+  id: text('id').$defaultFn(() => nanoid()),
+  username: text('username').notNull().primaryKey(),
+  password: text('password').notNull(),
+  createdAt: text('created_at')
+    .notNull()
+    .default(sql`(datetime('now','localtime'))`),
+  updatedAt: text('updated_at')
+    .notNull()
+    .default(sql`(datetime('now','localtime'))`),
+});
+
 export type ProductInsert = InferInsertModel<typeof products>;
 export type ProductSelect = InferSelectModel<typeof products>;
 
@@ -119,6 +131,9 @@ export type ShipmentSelect = InferSelectModel<typeof shipments>;
 
 export type SaleInsert = InferInsertModel<typeof sales>;
 export type SaleSelect = InferSelectModel<typeof sales>;
+
+export type UserInsert = InferInsertModel<typeof users>;
+export type UserSelect = InferSelectModel<typeof users>;
 
 export type ShipmentToProductInsert = InferInsertModel<typeof shipmentsToProducts>;
 export type ShipmentToProductSelect = InferSelectModel<typeof shipmentsToProducts>;

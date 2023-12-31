@@ -15,10 +15,12 @@
   },
   "dependencies": {
     "@tremor/react": "^3.11.1",
+    "bcryptjs": "^2.4.3",
     "better-sqlite3": "^9.2.2",
     "clsx": "^2.0.0",
     "drizzle-orm": "^0.29.1",
     "electron-serve": "^1.2.0",
+    "jsonwebtoken": "^9.0.2",
     "nanoid": "^5.0.4",
     "next": "14.0.3",
     "react": "^18",
@@ -26,7 +28,9 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",
+    "@types/bcryptjs": "^2.4.6",
     "@types/better-sqlite3": "^7.6.8",
+    "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

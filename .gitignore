@@ -16,7 +16,7 @@
 npm-debug.log*
 
 # local env files
-.env*.local
+.env
 
 #build files
 background/main
