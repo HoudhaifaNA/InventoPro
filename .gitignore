@@ -3,6 +3,7 @@
 
 .next/
 app/
+renderer/out
 dist/
 *log
 
@@ -16,7 +17,7 @@ backend/config.ts
 drizzle/*
 seed.ts
 
-#upload
-public/uploads/*
+uploads/
+
 
 
