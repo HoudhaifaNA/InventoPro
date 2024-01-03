@@ -1,0 +1,288 @@
+import { and, eq, inArray, sql } from 'drizzle-orm';
+
+import { db } from '../../db';
+import { ShipmentInsert, ShipmentToProductInsert, products, shipments, shipmentsToProducts } from '../../db/schema';
+import catchAsync from '../utils/catchAsync';
+import AppError from '../utils/AppError';
+import formatDateTime from '../utils/formatDateTime';
+// import { isValidExpenses, isValidProducts } from '../../renderer/types';
+import { calculateExpensesTotal, calculateShipmentTotal } from '../utils/calculations';
+
+export interface Expense {
+  id: string;
+  raison: string;
+  cost_in_usd: number;
+  cost_in_rmb: number;
+  cost_in_dzd: number;
+}
+
+export const isValidExpenses = (expenses: any): expenses is Expense[] => {
+  if (!Array.isArray(expenses)) {
+    return false;
+  }
+
+  for (const exp of expenses) {
+    if (
+      typeof exp === 'object' &&
+      typeof exp.id === 'string' &&
+      typeof exp.raison === 'string' &&
+      typeof exp.cost_in_dzd === 'number' &&
+      typeof exp.cost_in_usd === 'number' &&
+      typeof exp.cost_in_rmb === 'number'
+    ) {
+      continue;
+    } else {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+export interface Product {
+  id: string;
+  quantity: number;
+  totalPrice: number;
+}
+
+export const isValidProducts = (products: any): products is Product[] => {
+  if (!Array.isArray(products)) {
+    return false;
+  }
+
+  for (const product of products) {
+    if (
+      typeof product === 'object' &&
+      typeof product.id === 'string' &&
+      typeof product.quantity === 'number' &&
+      typeof product.totalPrice === 'number'
+    ) {
+      continue;
+    } else {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+export const getShipments = catchAsync(async (_req, res) => {
+  const shipments = await db.query.shipments.findMany({
+    with: {
+      products: {
+        columns: {
+          productId: false,
+          shipmentId: false,
+        },
+
+        with: {
+          products: {
+            columns: {
+              id: true,
+              retailPrice: true,
+              wholesalePrice: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return res.status(200).json({ results: shipments.length, shipments });
+});
+
+export const createShipment = catchAsync((req, res, next) => {
+  const { shipmentDate, expenses, shipmentCode, productsBought, arrivalDate } = req.body;
+
+  if (!isValidExpenses(expenses)) {
+    return next(new AppError('Données de dépenses invalides. Veuillez vérifier votre saisie.', 400));
+  }
+
+  if (!isValidProducts(productsBought)) {
+    return next(new AppError('Données produit invalides. Veuillez vérifier votre saisie.', 400));
+  }
+
+  const expensesTotal = calculateExpensesTotal(expenses);
+  const productsTotal = calculateShipmentTotal(productsBought);
+  const productsCount = productsBought.length;
+
+  const newShipmentBody: ShipmentInsert = {
+    shipmentDate: formatDateTime(shipmentDate),
+    expenses,
+    shipmentCode,
+    arrivalDate,
+    productsCount,
+    total: expensesTotal + productsTotal,
+  };
+
+  const newShipment = db.transaction((tx) => {
+    const newShipment = tx.insert(shipments).values(newShipmentBody).returning().get();
+
+    productsBought.forEach(({ id, quantity, totalPrice }) => {
+      const unitPrice = (expensesTotal / productsCount + totalPrice) / quantity;
+
+      const shipmentToProductBody: ShipmentToProductInsert = {
+        productId: id,
+        shipmentId: newShipment.id,
+        quantity,
+        unitPrice,
+        totalPrice,
+      };
+
+      tx.update(products)
+        .set({
+          stock: sql`${products.stock} + ${quantity}`,
+          updatedAt: formatDateTime(new Date()),
+        })
+        .where(eq(products.id, id))
+        .run();
+
+      tx.insert(shipmentsToProducts).values(shipmentToProductBody).run();
+    });
+
+    return newShipment;
+  });
+
+  return res.status(201).json({ message: 'Expédition créée avec succès.', shipment: newShipment });
+});
+
+export const updateShipment = catchAsync((req, res, next) => {
+  const { id } = req.params;
+  const { shipmentDate, expenses, shipmentCode, productsBought, arrivalDate } = req.body;
+
+  if (!isValidExpenses(expenses)) {
+    return next(new AppError('Données de dépenses invalides. Veuillez vérifier votre saisie.', 400));
+  }
+
+  if (!isValidProducts(productsBought)) {
+    return next(new AppError('Données produit invalides. Veuillez vérifier votre saisie.', 400));
+  }
+
+  const updatedAt = formatDateTime(new Date());
+  const expensesTotal = calculateExpensesTotal(expenses);
+  const productsTotal = calculateShipmentTotal(productsBought);
+  const productsCount = productsBought.length;
+
+  const shipmentBody: ShipmentInsert = {
+    shipmentDate: formatDateTime(shipmentDate),
+    expenses,
+    shipmentCode,
+    arrivalDate,
+    productsCount,
+    total: expensesTotal + productsTotal,
+    updatedAt,
+  };
+
+  const oldShipment = db.select().from(shipments).where(eq(shipments.id, id)).get();
+
+  if (!oldShipment) {
+    return next(new AppError('Expédition introuvable. Veuillez vérifier les informations fournies.', 400));
+  }
+
+  const shipment = db.transaction((tx) => {
+    const updatedShipment = tx.update(shipments).set(shipmentBody).where(eq(shipments.id, id)).returning().get();
+
+    const oldShipmentProducts = tx
+      .select()
+      .from(shipmentsToProducts)
+      .where(eq(shipmentsToProducts.shipmentId, updatedShipment.id))
+      .all();
+
+    oldShipmentProducts.forEach((oldShipmentProduct) => {
+      const isProductInNewUpdate = productsBought.some((newProduct) => newProduct.id === oldShipmentProduct.productId);
+
+      if (!isProductInNewUpdate) {
+        tx.delete(shipmentsToProducts)
+          .where(
+            and(
+              eq(shipmentsToProducts.shipmentId, updatedShipment.id),
+              eq(shipmentsToProducts.productId, oldShipmentProduct.productId)
+            )
+          )
+          .run();
+
+        tx.update(products)
+          .set({ stock: sql`${products.stock} - ${oldShipmentProduct.quantity}`, updatedAt })
+          .where(eq(products.id, oldShipmentProduct.productId))
+          .run();
+      }
+    });
+
+    productsBought.forEach(({ id, quantity, totalPrice }) => {
+      const unitPrice = (expensesTotal / productsCount + totalPrice) / quantity;
+
+      const shipmentToProductBody: ShipmentToProductInsert = {
+        productId: id,
+        shipmentId: updatedShipment.id,
+        quantity,
+        unitPrice,
+        totalPrice,
+      };
+
+      const oldShipmentProduct = tx
+        .select()
+        .from(shipmentsToProducts)
+        .where(and(eq(shipmentsToProducts.shipmentId, updatedShipment.id), eq(shipmentsToProducts.productId, id)))
+        .get();
+
+      tx.update(products)
+        .set({ stock: sql`${products.stock} - ${oldShipmentProduct?.quantity || 0} + ${quantity}`, updatedAt })
+        .where(eq(products.id, id))
+        .run();
+
+      tx.update(products)
+        .set({
+          retailPrice: sql`((${products.retailPercentage} * ${unitPrice}) / 100 ) + ${unitPrice}`,
+          wholesalePrice: sql`((${products.wholesalePercentage} * ${unitPrice}) / 100 ) + ${unitPrice}`,
+        })
+        .where(eq(products.currentShipmentId, updatedShipment.id))
+        .run();
+
+      if (oldShipmentProduct) {
+        tx.update(shipmentsToProducts)
+          .set(shipmentToProductBody)
+          .where(and(eq(shipmentsToProducts.shipmentId, updatedShipment.id), eq(shipmentsToProducts.productId, id)))
+          .run();
+      } else {
+        tx.insert(shipmentsToProducts).values(shipmentToProductBody).run();
+      }
+    });
+
+    return updatedShipment;
+  });
+
+  return res.status(200).json({ message: 'Expédition mise à jour avec succès.', shipment });
+});
+
+export const deleteShipmentsById = catchAsync((req, res, next) => {
+  const { id } = req.params;
+
+  const idsList = id.split(',');
+
+  const productsWithShipment = db.select().from(products).where(inArray(products.currentShipmentId, idsList)).all();
+
+  if (productsWithShipment.length > 0) {
+    return next(new AppError("L'expédition comporte des produits pertinents.", 400));
+  }
+
+  db.transaction((tx) => {
+    const deletedShipmentsToProducts = tx
+      .delete(shipmentsToProducts)
+      .where(inArray(shipmentsToProducts.shipmentId, idsList))
+      .returning()
+      .all();
+
+    deletedShipmentsToProducts.forEach(({ productId, quantity }) => {
+      tx.update(products)
+        .set({
+          stock: sql`${products.stock} -  ${quantity}`,
+          updatedAt: formatDateTime(new Date()),
+        })
+        .where(eq(products.id, productId))
+        .run();
+    });
+
+    tx.delete(shipments).where(inArray(shipments.id, idsList)).run();
+  });
+
+  return res.status(204).json({});
+});

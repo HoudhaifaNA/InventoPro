@@ -1,3 +1,17 @@
-appId: "inventopro.houdhaifa"
-productName: "InventoPro"
-copyright: "Copyright (c) 2023 Houdhaifa"
+appId: 'inventopro.houdhaifa'
+productName: 'InventoPro'
+copyright: 'Copyright (c) 2024 Houdhaifa'
+directories:
+  output: dist
+  buildResources: resources
+extraResources:
+  - from: 'uploads'
+    to: uploads
+    filter:
+      - '**/*'
+files:
+  - from: .
+    filter:
+      - package.json
+      - app
+publish: null
