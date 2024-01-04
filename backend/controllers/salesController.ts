@@ -10,7 +10,7 @@ const checkBodyData = (body: any) => {
   const { type } = body;
 
   if (!['wholesale', 'retail'].includes(type)) {
-    throw Error('Invalid type');
+    throw new AppError('Invalid type.', 400);
   }
 };
 
@@ -43,7 +43,7 @@ export const saleProduct = catchAsync((req, res, next) => {
   }
 
   if (product.stock - quantity < 0) {
-    return next(new AppError('Stock insuffisant. Veuillez vérifier les niveaux de stock disponibles.', 404));
+    return next(new AppError('Stock insuffisant. Veuillez vérifier les niveaux de stock disponibles.', 400));
   }
 
   const newSale = db.transaction((tx) => {

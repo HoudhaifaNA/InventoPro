@@ -32,8 +32,8 @@ const isOrderBy = (orderByValue: string | null): orderByValue is ORDER_BY => {
 
 export const sortResults = (param: any) => {
   const operations = getOrderByOperators();
-  let orderByParam: string;
-  let order: 'asc' | 'desc';
+  let orderByParam: string = '';
+  let order: 'asc' | 'desc' = 'asc';
 
   if (typeof param === 'string') {
     orderByParam = param.replace('-', '');

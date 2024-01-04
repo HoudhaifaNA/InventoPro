@@ -2,7 +2,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
-import { productsRoutes, shipmentsRoutes, salesRoutes, usersRoutes } from './routes';
+import { productsRoutes, shipmentsRoutes, salesRoutes, usersRoutes, statsRoutes } from './routes';
 import { confirmAction, protect } from './controllers/authController';
 import errorController from './controllers/errorController';
 
@@ -19,6 +19,7 @@ app.delete('/api/*', confirmAction);
 app.use('/api/products', productsRoutes);
 app.use('/api/shipments', shipmentsRoutes);
 app.use('/api/sales', salesRoutes);
+app.use('/api/stats', statsRoutes);
 
 app.all('*', (_req, res) => {
   res.status(404).json({ status: 'error', message: "Le serveur n'a pas pu trouver la route API demandée." });
