@@ -5,10 +5,20 @@ interface LabeledInputProps extends Pick<ComponentPropsWithoutRef<'div'>, 'class
   id?: string;
   label: string;
   color?: 'white' | 'black';
+  isError?: boolean;
+  errorMessage?: string;
   children: ReactElement | JSX.Element;
 }
 
-const LabeledInput = ({ id, label, color = 'black', className, children }: LabeledInputProps) => {
+const LabeledInput = ({
+  id,
+  label,
+  color = 'black',
+  isError,
+  errorMessage,
+  className,
+  children,
+}: LabeledInputProps) => {
   const clonedChildren = cloneElement(children, { id });
 
   return (
@@ -20,6 +30,7 @@ const LabeledInput = ({ id, label, color = 'black', className, children }: Label
         {label}
       </label>
       {clonedChildren}
+      {isError && errorMessage && <span className='mt-1 text-xs font-medium text-red-500'>{errorMessage}</span>}
     </div>
   );
 };

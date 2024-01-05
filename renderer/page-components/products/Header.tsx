@@ -1,4 +1,3 @@
-'use client';
 import { TextInput } from '@tremor/react';
 
 import Button from '@/components/Button';

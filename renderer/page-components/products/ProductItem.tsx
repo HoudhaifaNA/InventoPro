@@ -5,26 +5,20 @@ import clsx from 'clsx';
 
 import Button from '@/components/Button';
 import Icon from '@/components/Icon';
+import { ProductsWithShipment } from '@/types';
 
-interface ProductItemProps {
-  name: string;
-  refrence: string;
-  image: string;
-  company: string;
-  category: string;
-  shipments: number;
-  stock: number;
-  retailPrice: number;
-  wholesalePrice: number;
+interface ProductItemProps extends ProductsWithShipment {
   display: 'grid' | 'list';
 }
 
 const BulletSperator = () => <div className='h-1 w-1 rounded bg-black' />;
 
 const ProductItem = (props: ProductItemProps) => {
-  const { name, refrence, image, category, shipments, company, stock, retailPrice, wholesalePrice, display } = props;
+  const { name, reference, thumbnail, category, shipments, company, stock, retailPrice, wholesalePrice, display } =
+    props;
 
   const isGridDisplay = display === 'grid';
+  const imageSrc = thumbnail ? `http://localhost:5500/api/attachments/${thumbnail}` : '/no-image.jpg';
 
   return (
     <div
@@ -39,25 +33,25 @@ const ProductItem = (props: ProductItemProps) => {
           isGridDisplay ? 'h-56 min-h-[224px] w-full' : 'h-20 min-h-[80px] w-20 min-w-[80px]'
         )}
       >
-        <Image src={`/${image}`} alt='product' fill />
+        <Image src={imageSrc} alt='product' fill />
       </div>
       <div className='flex flex-1 flex-col gap-4'>
         <Link href='/products/id'>
           <p className='truncate text-sm font-semibold'>{name}</p>
         </Link>
         <span className='text-xs font-medium'>
-          <b>Réf :</b> #{refrence}
+          <b>Réf :</b> {reference || '  --'}
         </span>
         <div className='flex flex-wrap items-center gap-2 text-xs font-medium'>
           <Link href='/'>
-            <span className='font-semibold text-neutral-500'>{category}</span>
+            <span className='font-semibold text-neutral-500'>{category || '--'}</span>
           </Link>
           <BulletSperator />
           <Link href='/'>
-            <span className='font-semibold text-neutral-500'>{company}</span>
+            <span className='font-semibold text-neutral-500'>{company || '--'}</span>
           </Link>
           <BulletSperator />
-          <span>{shipments} tranches</span>
+          <span>{shipments.length} tranches</span>
           <BulletSperator />
           <b>{stock} en stock</b>
           {stock < 30 && (

@@ -1,6 +1,5 @@
-'use client';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/router';
 import clsx from 'clsx';
 
 import Button from '@/components/Button';
@@ -35,11 +34,11 @@ const LINKS = [
 ];
 
 const NavbarList = () => {
-  const pathname = usePathname();
+  const router = useRouter();
 
   const renderListItems = () => {
     return LINKS.map(({ link, title, icon }) => {
-      const isActive = link === pathname;
+      const isActive = link === router.pathname;
 
       const activeLinkClasses = { 'opacity-60 border-transparent': !isActive, 'border-rose-600': isActive };
 

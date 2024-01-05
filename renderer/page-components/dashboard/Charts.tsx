@@ -1,4 +1,3 @@
-'use client';
 import { AreaChart, BarChart } from '@tremor/react';
 
 const areaChartdata = [

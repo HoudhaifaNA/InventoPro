@@ -1,4 +1,3 @@
-'use client';
 import { NumberInput } from '@tremor/react';
 
 import LabeledInput from '@/components/LabeledInput';
