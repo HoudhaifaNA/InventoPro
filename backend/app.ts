@@ -5,6 +5,7 @@ import cors from 'cors';
 import { productsRoutes, shipmentsRoutes, salesRoutes, usersRoutes, statsRoutes } from './routes';
 import { confirmAction, protect } from './controllers/authController';
 import errorController from './controllers/errorController';
+import attachmentsController from './controllers/attachmentsController';
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use('/api/products', productsRoutes);
 app.use('/api/shipments', shipmentsRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/stats', statsRoutes);
+app.get('/api/attachments/:filename', attachmentsController);
 
 app.all('*', (_req, res) => {
   res.status(404).json({ status: 'error', message: "Le serveur n'a pas pu trouver la route API demandée." });

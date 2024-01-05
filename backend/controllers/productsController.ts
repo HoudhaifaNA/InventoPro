@@ -113,7 +113,7 @@ export const getProductById = catchAsync(async (req, res) => {
 });
 
 export const createProduct = catchAsync(async (req, res, next) => {
-  const { name, ref, company, category, stock, retailPrice, wholesalePrice } = req.body;
+  const { name, reference, company, category, stock, retailPrice, wholesalePrice } = req.body;
   const { file } = req;
   let thumbnail;
 
@@ -124,7 +124,7 @@ export const createProduct = catchAsync(async (req, res, next) => {
 
     const newProductBody: ProductInsert = {
       name,
-      ref,
+      reference,
       company,
       thumbnail,
       category,
@@ -153,7 +153,7 @@ export const createProduct = catchAsync(async (req, res, next) => {
 export const updateProduct = catchAsync(async (req, res, next) => {
   const {
     name,
-    ref,
+    reference,
     company,
     category,
     currentShipmentId,
@@ -188,7 +188,7 @@ export const updateProduct = catchAsync(async (req, res, next) => {
 
     const productBody: ProductInsert = {
       name,
-      ref,
+      reference,
       thumbnail,
       company,
       category,

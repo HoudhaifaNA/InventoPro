@@ -20,7 +20,7 @@ export const getSales = catchAsync(async (_req, res) => {
       product: {
         columns: {
           name: true,
-          ref: true,
+          reference: true,
         },
       },
     },
