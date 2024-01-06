@@ -1,14 +1,7 @@
 import { InferInsertModel, InferSelectModel, relations, sql } from 'drizzle-orm';
 import { integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { nanoid } from 'nanoid';
-
-export interface Expense {
-  id: string;
-  raison: string;
-  cost_in_usd: number;
-  cost_in_rmb: number;
-  cost_in_dzd: number;
-}
+import { Expense } from '../types';
 
 export const products = sqliteTable('products', {
   id: text('id')
