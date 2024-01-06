@@ -16,17 +16,30 @@ const useInfinitLoading = <T>(config: Config) => {
   const [currPage, setCurrPage] = useState(1);
   const [hasNextPage, toggleNextPage] = useState(false);
   const [records, setRecords] = useState<T[]>([]);
-  const { data, error, isLoading } = useSWR(`${endpoint}page=${currPage}`, fetcher);
+
+  const url = endpoint.includes('?') ? `${endpoint}&page=${currPage}` : `${endpoint}?page=${currPage}`;
+  const { data, error, isLoading } = useSWR(url, fetcher);
 
   const results = data ? data[countkey] : 0;
   const resultsLength = results || 0;
+
+  useEffect(() => {
+    setRecords([]);
+    setCurrPage(1);
+  }, [endpoint]);
 
   useEffect(() => {
     toggleNextPage(currPage < resultsLength / limit);
   }, [resultsLength, limit, currPage]);
 
   useEffect(() => {
-    if (data && data[recordsKey]) setRecords(records.concat(...data[recordsKey]));
+    if (data && data[recordsKey]) {
+      const updatedRecords: T[] = Array.from(
+        new Map([...records, ...data[recordsKey]].map((item) => [item.id, item]))
+      ).map(([_id, item]) => item);
+
+      setRecords(updatedRecords);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 

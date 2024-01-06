@@ -8,14 +8,15 @@ import Button from '@/components/Button';
 import Loading from '@/components/Loading';
 import ErrorMessage from '@/components/ErrorMessage';
 import useInfinitLoading from '@/hooks/useInfinitLoading';
-import { useDisplay } from '@/store';
+import { useDisplay, useProductsUrl } from '@/store';
 
 const ProductsSection = () => {
   const loadMoreRef = useRef(null);
   const display = useDisplay((state) => state.display);
+  const fetchedUrl = useProductsUrl((state) => state.fetchedUrl);
 
   const { records, hasNextPage, error, isLoading } = useInfinitLoading<ProductsWithShipment>({
-    endpoint: '/products?',
+    endpoint: fetchedUrl,
     countkey: 'results',
     recordsKey: 'products',
     btn: loadMoreRef,
