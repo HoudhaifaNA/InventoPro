@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import clsx from 'clsx';
 
 import Header from './Header';
@@ -8,19 +8,35 @@ import Button from '@/components/Button';
 import Loading from '@/components/Loading';
 import ErrorMessage from '@/components/ErrorMessage';
 import useInfinitLoading from '@/hooks/useInfinitLoading';
-import { useDisplay, useProductsUrl } from '@/store';
+import { useDisplay, useProductsUrl, useSavedData } from '@/store';
 
 const ProductsSection = () => {
   const loadMoreRef = useRef(null);
   const display = useDisplay((state) => state.display);
-  const fetchedUrl = useProductsUrl((state) => state.fetchedUrl);
+  const { fetchedUrl, setResults } = useProductsUrl((state) => state);
+  const { companies, categories, updateData } = useSavedData((state) => state);
 
-  const { records, hasNextPage, error, isLoading } = useInfinitLoading<ProductsWithShipment>({
+  const { records, results, data, hasNextPage, error, isLoading } = useInfinitLoading<ProductsWithShipment>({
     endpoint: fetchedUrl,
     countkey: 'results',
     recordsKey: 'products',
     btn: loadMoreRef,
   });
+
+  const companiesList = data && data['companiesList'] ? data['companiesList'] : companies;
+  const categoriesList = data && data['categoriesList'] ? data['categoriesList'] : categories;
+
+  useEffect(() => {
+    if (!isLoading) setResults(results);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [results, isLoading]);
+
+  useEffect(() => {
+    updateData(companiesList, categoriesList);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(companiesList), JSON.stringify(categoriesList)]);
 
   return (
     <div className='flex flex-1 flex-col overflow-x-auto pl-0.5'>

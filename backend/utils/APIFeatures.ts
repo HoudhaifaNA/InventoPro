@@ -5,7 +5,7 @@ import { products } from '../../db/schema';
 
 enum ORDER_BY {
   NAME = 'name',
-  CREATED_AT = 'createdAt',
+  UPDATED_AT = 'updatedAt',
   STOCK = 'stock',
   RETAIL_PRICE = 'retailPrice',
   WHOLESALE_PRICE = 'wholesalePrice',

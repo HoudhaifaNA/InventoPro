@@ -5,7 +5,9 @@ import buildUrl from '@/utils/buildUrl';
 interface UrlState {
   baseUrl: string;
   fetchedUrl: string;
+  results: number;
   queries: QueryParameters;
+  setResults: (results: number) => void;
   addQuery: (newQuery: QueryItem) => void;
   deleteQuery: (query: string) => void;
 }
@@ -15,7 +17,12 @@ const BASE_URL = '/products';
 const useProductsUrl = create<UrlState>()((set) => ({
   baseUrl: BASE_URL,
   fetchedUrl: BASE_URL,
+  results: 0,
   queries: {},
+  setResults: (results) =>
+    set(() => {
+      return { results };
+    }),
   addQuery: ({ query, value }) =>
     set((state) => {
       const updatedQueries = { ...state.queries, [query]: value };

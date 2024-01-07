@@ -43,13 +43,9 @@ const ProductItem = (props: ProductItemProps) => {
           <b>Réf :</b> {reference || '  --'}
         </span>
         <div className='flex flex-wrap items-center gap-2 text-xs font-medium'>
-          <Link href='/'>
-            <span className='font-semibold text-neutral-500'>{category || '--'}</span>
-          </Link>
+          <span className='font-semibold text-neutral-500'>{category || '--'}</span>
           <BulletSperator />
-          <Link href='/'>
-            <span className='font-semibold text-neutral-500'>{company || '--'}</span>
-          </Link>
+          <span className='font-semibold text-neutral-500'>{company || '--'}</span>
           <BulletSperator />
           <span>{shipments.length} tranches</span>
           <BulletSperator />

@@ -90,15 +90,19 @@ export const getAllProducts = catchAsync(async (req, res) => {
     },
   });
 
-  const companiesList = await db
+  const companiesList = db
     .select({ company: products.company })
     .from(products)
-    .groupBy((t) => [t.company]);
+    .groupBy((t) => [t.company])
+    .all()
+    .map(({ company }) => company);
 
-  const categoriesList = await db
+  const categoriesList = db
     .select({ category: products.category })
     .from(products)
-    .groupBy((t) => [t.category]);
+    .groupBy((t) => [t.category])
+    .all()
+    .map(({ category }) => category);
 
   res
     .status(200)

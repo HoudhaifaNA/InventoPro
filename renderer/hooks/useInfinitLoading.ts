@@ -1,4 +1,4 @@
-import { useState, useEffect, MutableRefObject } from 'react';
+import { useState, useEffect, MutableRefObject, useCallback, useRef } from 'react';
 import useSWR from 'swr';
 
 import { fetcher } from '@/utils/API';
@@ -16,29 +16,36 @@ const useInfinitLoading = <T>(config: Config) => {
   const [currPage, setCurrPage] = useState(1);
   const [hasNextPage, toggleNextPage] = useState(false);
   const [records, setRecords] = useState<T[]>([]);
+  const prevEndpoint = useRef(endpoint);
+  const generateUrl = (nun: number) => {
+    return endpoint.includes('?') ? `${endpoint}&page=${nun}` : `${endpoint}?page=${nun}`;
+  };
 
-  const url = endpoint.includes('?') ? `${endpoint}&page=${currPage}` : `${endpoint}?page=${currPage}`;
+  const url = prevEndpoint.current !== endpoint ? generateUrl(1) : generateUrl(currPage);
   const { data, error, isLoading } = useSWR(url, fetcher);
-
+  const newRecords = useRef(records);
   const results = data ? data[countkey] : 0;
   const resultsLength = results || 0;
 
   useEffect(() => {
-    setRecords([]);
+    prevEndpoint.current = endpoint;
     setCurrPage(1);
+    newRecords.current = [];
   }, [endpoint]);
 
   useEffect(() => {
-    toggleNextPage(currPage < resultsLength / limit);
+    const pagesCount = resultsLength / limit;
+    toggleNextPage(currPage < pagesCount);
   }, [resultsLength, limit, currPage]);
 
   useEffect(() => {
     if (data && data[recordsKey]) {
       const updatedRecords: T[] = Array.from(
-        new Map([...records, ...data[recordsKey]].map((item) => [item.id, item]))
+        new Map([...newRecords.current, ...data[recordsKey]].map((item) => [item.id, item]))
       ).map(([_id, item]) => item);
 
       setRecords(updatedRecords);
+      newRecords.current = updatedRecords;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
@@ -52,7 +59,7 @@ const useInfinitLoading = <T>(config: Config) => {
       if (hasNextPage) setCurrPage((prev) => (prev = prev + 1));
     };
 
-    const myObserver = new IntersectionObserver(handleInts, { threshold: 0.1 });
+    const myObserver = new IntersectionObserver(handleInts);
 
     if (loadMoreBtn) {
       myObserver.observe(loadMoreBtn as Element);
@@ -65,7 +72,7 @@ const useInfinitLoading = <T>(config: Config) => {
     };
   }, [btn, hasNextPage]);
 
-  return { results, records, error, isLoading, hasNextPage };
+  return { results, data, records, error, isLoading, hasNextPage };
 };
 
 export default useInfinitLoading;

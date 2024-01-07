@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { TextInput } from '@tremor/react';
 
 import Button from '@/components/Button';
@@ -16,14 +16,15 @@ const Header = () => {
   const { addQuery, deleteQuery } = useProductsUrl((state) => state);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      addQuery({ query: 'q', value: searchQuery });
+  const handleChange = (query: string) => {
+    setSearchQuery(query);
+
+    if (query.trim()) {
+      addQuery({ query: 'q', value: query });
     } else {
       deleteQuery('q');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery]);
+  };
 
   return (
     <div className='flex items-center gap-6 py-4'>
@@ -34,7 +35,7 @@ const Header = () => {
           placeholder='Recherche...'
           value={searchQuery}
           icon={() => <Icon icon='search' className='h-5 w-5 opacity-60' />}
-          onValueChange={setSearchQuery}
+          onValueChange={handleChange}
         />
         <Switcher<'list' | 'grid'>
           options={optionsList}
