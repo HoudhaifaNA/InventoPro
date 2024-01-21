@@ -8,7 +8,7 @@ export const products = sqliteTable('products', {
     .primaryKey()
     .$defaultFn(() => nanoid()),
   name: text('name').notNull(),
-  reference: text('reference').unique(),
+  reference: text('reference'),
   thumbnail: text('thumbnail'),
   company: text('company'),
   category: text('category'),
@@ -34,7 +34,7 @@ export const shipments = sqliteTable('shipments', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => nanoid()),
-  shipmentCode: text('shipment_code').unique(),
+  shipmentCode: text('shipment_code'),
   shipmentDate: text('shipment_date').notNull(),
   arrivalDate: text('arrival_date'),
   expenses: text('expenses', { mode: 'json' }).notNull().$type<Expense[]>(),

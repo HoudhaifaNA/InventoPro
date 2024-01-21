@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { TextInput } from '@tremor/react';
+import { nanoid } from 'nanoid';
 
 import Button from '@/components/Button';
 import Icon from '@/components/Icon';
 import Switcher, { Option } from '@/components/Switcher';
-import { useDisplay, useProductsUrl } from '@/store';
+import { useDisplay, useModals, useProductsUrl } from '@/store';
+import AddProductForm from '../ProductForm';
 
 const optionsList: Option<'list' | 'grid'>[] = [
   { payload: 'list', icon: 'list_view' },
@@ -12,19 +14,22 @@ const optionsList: Option<'list' | 'grid'>[] = [
 ];
 
 const Header = () => {
+  const [searchQuery, setSearchQuery] = useState('');
   const { display, updateDisplayType } = useDisplay((state) => state);
   const { addQuery, deleteQuery } = useProductsUrl((state) => state);
-  const [searchQuery, setSearchQuery] = useState('');
+  const { addModal } = useModals((state) => state);
 
   const handleChange = (query: string) => {
     setSearchQuery(query);
-
-    if (query.trim()) {
-      addQuery({ query: 'q', value: query });
-    } else {
-      deleteQuery('q');
+    const trimmedQuery = query.trim();
+    if (trimmedQuery) {
+      return addQuery({ query: 'q', value: query });
     }
+
+    deleteQuery('q');
   };
+
+  const onAddModal = () => addModal({ id: nanoid(), title: 'Ajouter un produit', children: AddProductForm });
 
   return (
     <div className='flex items-center gap-6 py-4'>
@@ -44,7 +49,7 @@ const Header = () => {
           handleSelect={(payload) => updateDisplayType(payload)}
         />
       </div>
-      <Button>Ajouter un produit</Button>
+      <Button onClick={onAddModal}>Ajouter un produit</Button>
     </div>
   );
 };

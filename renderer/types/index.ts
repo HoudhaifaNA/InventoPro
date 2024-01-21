@@ -13,4 +13,18 @@ type QueryItem = {
   value: QueryValue;
 };
 
-export type { ProductSelect, QueryParameters, QueryItem, ProductsWithShipment, ShipmentSelect };
+interface IModal {
+  id: string;
+  title: string;
+  children: () => JSX.Element;
+}
+
+interface GetProducts {
+  results: number;
+  start: number;
+  products: ProductsWithShipment[];
+  companiesList: string[];
+  categoriesList: string[];
+}
+
+export type { ProductSelect, QueryParameters, GetProducts, QueryItem, IModal, ProductsWithShipment, ShipmentSelect };

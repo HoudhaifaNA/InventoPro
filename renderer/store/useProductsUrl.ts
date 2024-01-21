@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+
 import { QueryItem, QueryParameters } from '@/types';
 import buildUrl from '@/utils/buildUrl';
 
@@ -14,11 +15,15 @@ interface UrlState {
 
 const BASE_URL = '/products';
 
-const useProductsUrl = create<UrlState>()((set) => ({
+const DEFAULT_STATE = {
   baseUrl: BASE_URL,
   fetchedUrl: BASE_URL,
   results: 0,
-  queries: {},
+  queries: { page: 1, limit: 100 },
+};
+
+const useProductsUrl = create<UrlState>()((set) => ({
+  ...DEFAULT_STATE,
   setResults: (results) =>
     set(() => {
       return { results };

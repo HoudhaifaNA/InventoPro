@@ -1,5 +1,5 @@
 import ProductDetails from '@/page-components/products/ProductDetails';
-import ProductThumbnail from '@/page-components/products/ProductThumbnail';
+import ProductThumbnail from '@/page-components/products/ProductDetails/ProductThumbnail';
 
 const ProductDetailsPage = () => {
   return (
