@@ -56,7 +56,7 @@ const FormStepTwo = () => {
         <LabeledInput id='cost' label='Coût :' className='flex-1'>
           <NumberInput placeholder='170' min={0} enableStepper={false} />
         </LabeledInput>
-        <Button className='absolute right-0 opacity-0 transition-opacity group-hover:static  group-hover:opacity-100'>
+        <Button className='group-hover:animate-showDeleteBtn absolute right-0 top-7 opacity-0' squared>
           <Icon icon='close' className='h-5 w-5' />
         </Button>
       </FormRow>

@@ -14,7 +14,7 @@ const ErrorMessage = ({ error }: ErrorMessageProps) => {
   }
 
   return (
-    <div className='flex h-full flex-col items-center justify-center gap-6 text-center'>
+    <div className='flex h-full w-full flex-col items-center justify-center gap-6 text-center'>
       <Image src='/images/error.png' width={320} height={320} alt='error' />
       <h4 className='text-1xl font-semibold text-red-600'>{message}</h4>
     </div>

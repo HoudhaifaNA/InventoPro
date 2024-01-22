@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { useRouter } from 'next/router';
 import { TextInput } from '@tremor/react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -22,6 +23,7 @@ interface ConfirmationalFormProps {
 
 const ConfirmationalForm = ({ className, type, id, children }: ConfirmationalFormProps) => {
   const { deleteModal } = useModals();
+  const router = useRouter();
   const { handleSubmit, register, formState } = useForm<ConfirmationalInputs>();
 
   const { errors, isSubmitting } = formState;
@@ -32,6 +34,7 @@ const ConfirmationalForm = ({ className, type, id, children }: ConfirmationalFor
       deleteModal(1);
       if (type === 'd-products' || type === 'cancel-sale') {
         revalidatePath(/^\/products/);
+        router.push('/products');
       }
     }
   };

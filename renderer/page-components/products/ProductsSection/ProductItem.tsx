@@ -34,7 +34,7 @@ const ProductItem = (props: ProductItemProps) => {
         <Image src={imageSrc} alt='product' fill />
       </div>
       <div className='flex flex-1 flex-col gap-4'>
-        <Link href='/products/id'>
+        <Link href={`/products/${product.id}`}>
           <p className='truncate text-sm font-semibold'>{name}</p>
         </Link>
         <span className='text-xs font-medium'>
@@ -71,7 +71,7 @@ const ProductItem = (props: ProductItemProps) => {
           <span className='whitespace-nowrap font-semibold'>{wholesalePrice}.00 DA</span>
         </div>
       </div>
-      <ProductActions product={product} />
+      <ProductActions product={product} multipleDisplay />
     </div>
   );
 };

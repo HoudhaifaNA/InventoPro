@@ -7,14 +7,15 @@ import { ProductsWithShipment } from '@/types';
 import ConfirmationalForm from '@/components/ConfirmationalForm';
 
 interface ProductActionsProps {
+  multipleDisplay?: boolean;
   product: ProductsWithShipment;
 }
 
-const ProductActions = ({ product }: ProductActionsProps) => {
+const ProductActions = ({ product, multipleDisplay }: ProductActionsProps) => {
   const { addModal } = useModals((state) => state);
   const display = useDisplay((state) => state.display);
 
-  const isGridDisplay = display === 'grid';
+  const isGridDisplay = display === 'grid' && multipleDisplay;
 
   const DeleteProductModal = () => {
     return (

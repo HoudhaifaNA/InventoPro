@@ -1,10 +1,15 @@
 import Button from '@/components/Button';
 import Icon from '@/components/Icon';
 import ProductShipments from './ProductShipments';
+import { ProductsWithShipment } from '@/types';
+import ProductActions from '../ProductActions';
 
 interface ProductDetailItemProps {
   label: string;
-  value: string;
+  value: string | number;
+}
+interface ProductDetailsProps {
+  product: ProductsWithShipment;
 }
 
 const ProductDetailItem = ({ label, value }: ProductDetailItemProps) => {
@@ -16,22 +21,22 @@ const ProductDetailItem = ({ label, value }: ProductDetailItemProps) => {
   );
 };
 
-const ProductDetails = () => {
+const ProductDetails = ({ product }: ProductDetailsProps) => {
+  const { reference, category, company, shipments, stock, retailPrice, wholesalePrice } = product;
+
   return (
     <div className='flex flex-1 flex-col items-start gap-4 xl:flex-row'>
       <div className='flex flex-col gap-6 space-y-1.5'>
-        <ProductDetailItem label='référence' value='#178F469' />
-        <ProductDetailItem label='catégorie' value='générale' />
-        <ProductDetailItem label='entreprise' value='ABC Electic' />
-        <ProductDetailItem label='expéditions' value='173' />
-        <ProductDetailItem label='stock' value='369' />
-        <ProductDetailItem label='prix en détail' value='269.00 DA' />
-        <ProductDetailItem label='prix de gros' value='239.00 DA' />
+        <ProductDetailItem label='référence' value={reference || '--'} />
+        <ProductDetailItem label='catégorie' value={category || '--'} />
+        <ProductDetailItem label='entreprise' value={company || '--'} />
+        <ProductDetailItem label='expéditions' value={shipments.length} />
+        <ProductDetailItem label='stock' value={stock} />
+        <ProductDetailItem label='prix en détail' value={`${retailPrice}.00 DA`} />
+        <ProductDetailItem label='prix de gros' value={`${wholesalePrice}.00 DA`} />
         <div className='flex gap-2'>
           <Button>Ajouter une expédition</Button>
-          <Button variant='light' squared>
-            <Icon icon='more_horiz' className='h-5 w-5' />
-          </Button>
+          <ProductActions product={product} />
         </div>
       </div>
       <ProductShipments />

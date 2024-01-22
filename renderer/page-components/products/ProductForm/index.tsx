@@ -64,21 +64,51 @@ const AddProductForm = ({ id }: { id: string }) => {
         <LabeledInput label='Pourcentage (%) :' className='flex-1'>
           <NumberInput placeholder='0%' disabled enableStepper={false} />
         </LabeledInput>
-        <LabeledInput label='Prix ​​en détail :' className='flex-1'>
-          <NumberInput placeholder='1590' enableStepper={false} {...register('retailPrice')} />
+        <LabeledInput
+          label='Prix ​​en détail :'
+          className='flex-1'
+          sError={!!errors.retailPrice}
+          errorMessage={errors.retailPrice?.message}
+        >
+          <NumberInput
+            placeholder='1590'
+            enableStepper={false}
+            min={0}
+            {...register('retailPrice', { min: { value: 0, message: 'Minimum est 0' } })}
+          />
         </LabeledInput>
       </FormRow>
       <FormRow>
         <LabeledInput label='Pourcentage (%) :' className='flex-1'>
           <NumberInput placeholder='0%' disabled enableStepper={false} />
         </LabeledInput>
-        <LabeledInput label='Prix en gros :' className='flex-1'>
-          <NumberInput placeholder='1590' enableStepper={false} {...register('wholesalePrice')} />
+        <LabeledInput
+          label='Prix en gros :'
+          className='flex-1'
+          sError={!!errors.wholesalePrice}
+          errorMessage={errors.wholesalePrice?.message}
+        >
+          <NumberInput
+            placeholder='1590'
+            enableStepper={false}
+            min={0}
+            {...register('wholesalePrice', { min: { value: 0, message: 'Minimum est 0' } })}
+          />
         </LabeledInput>
       </FormRow>
       <FormRow>
-        <LabeledInput label='Stock :' className='basis-[49%]'>
-          <NumberInput placeholder='1500' enableStepper={false} {...register('stock')} />
+        <LabeledInput
+          label='Stock :'
+          className='basis-[49%]'
+          sError={!!errors.stock}
+          errorMessage={errors.stock?.message}
+        >
+          <NumberInput
+            placeholder='1500'
+            enableStepper={false}
+            min={0}
+            {...register('stock', { min: { value: 0, message: 'Minimum est 0' } })}
+          />
         </LabeledInput>
         {/* <LabeledInput label='Expédition :' className='flex-1'>
           <SearchSelect placeholder='Sélectionner...'>

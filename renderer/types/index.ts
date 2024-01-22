@@ -1,4 +1,5 @@
 import { ProductSelect, ShipmentSelect } from '../../db/schema';
+import { Expense, Product } from '../../types';
 
 interface ProductsWithShipment extends ProductSelect {
   shipments: ShipmentSelect[];
@@ -28,4 +29,14 @@ interface GetProducts {
   categoriesList: string[];
 }
 
-export type { ProductSelect, QueryParameters, GetProducts, QueryItem, IModal, ProductsWithShipment, ShipmentSelect };
+export type {
+  ProductSelect,
+  QueryParameters,
+  GetProducts,
+  QueryItem,
+  IModal,
+  Expense,
+  Product,
+  ProductsWithShipment,
+  ShipmentSelect,
+};
