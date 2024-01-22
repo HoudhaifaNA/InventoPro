@@ -6,5 +6,5 @@ export interface AddProductFormInputs {
   retailPrice?: number;
   wholesalePrice?: number;
   stock?: number;
-  thumbnail?: File;
+  thumbnail?: File | string | null;
 }

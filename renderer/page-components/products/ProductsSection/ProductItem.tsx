@@ -3,8 +3,7 @@ import Link from 'next/link';
 import { Badge } from '@tremor/react';
 import clsx from 'clsx';
 
-import Button from '@/components/Button';
-import Icon from '@/components/Icon';
+import ProductActions from '../ProductActions';
 import { ProductsWithShipment } from '@/types';
 
 interface ProductItemProps extends ProductsWithShipment {
@@ -14,11 +13,10 @@ interface ProductItemProps extends ProductsWithShipment {
 const BulletSperator = () => <div className='h-1 w-1 rounded bg-black' />;
 
 const ProductItem = (props: ProductItemProps) => {
-  const { name, reference, thumbnail, category, shipments, company, stock, retailPrice, wholesalePrice, display } =
-    props;
-
-  const isGridDisplay = display === 'grid';
+  const { display, ...product } = props;
+  const { name, reference, thumbnail, category, shipments, company, stock, retailPrice, wholesalePrice } = product;
   const imageSrc = thumbnail ? `http://localhost:5500/api/attachments/${thumbnail}` : '/no-image.jpg';
+  const isGridDisplay = display === 'grid';
 
   return (
     <div
@@ -73,8 +71,7 @@ const ProductItem = (props: ProductItemProps) => {
           <span className='whitespace-nowrap font-semibold'>{wholesalePrice}.00 DA</span>
         </div>
       </div>
-
-      <Button variant='light'>{isGridDisplay ? 'More' : <Icon icon='more_horiz' className='h-5 w-5' />}</Button>
+      <ProductActions product={product} />
     </div>
   );
 };

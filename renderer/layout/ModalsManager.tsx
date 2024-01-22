@@ -8,7 +8,7 @@ const ModalsManager = () => {
     return modals.map((modal, ind) => {
       return (
         <Modal id={modal.id} title={modal.title} key={modal.id} zIndexMultiplier={ind + 1}>
-          {<modal.children />}
+          {<modal.children id={modal.id} />}
         </Modal>
       );
     });

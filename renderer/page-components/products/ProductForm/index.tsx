@@ -1,4 +1,3 @@
-import { useSWRConfig } from 'swr';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { NumberInput, TextInput } from '@tremor/react';
 
@@ -6,38 +5,33 @@ import Button from '@/components/Button';
 import FormRow from '@/components/FormRow';
 import LabeledInput from '@/components/LabeledInput';
 import DropzoneSpace from './DropzoneSpace';
-import { useModals, useProductsUrl } from '@/store';
+import { useModals } from '@/store';
+import revalidatePath from '@/utils/revalidatePath';
 import { AddProductFormInputs } from './types';
 import { ADD_PRODUCT_DEFAULT_VALUES } from './constant';
 import submitProduct from './submitProduct';
 
 const FORM_ID = 'addProductForm';
 
-const AddProductForm = () => {
-  const { cache, mutate } = useSWRConfig();
-  const { deleteModal } = useModals();
-  const { handleSubmit, register, setValue, formState } = useForm<AddProductFormInputs>({
-    defaultValues: ADD_PRODUCT_DEFAULT_VALUES,
+const AddProductForm = ({ id }: { id: string }) => {
+  const { modals, deleteModal } = useModals();
+
+  const currModal = modals.find((md) => md.id === id);
+  const isEdit = currModal && id === 'EDIT_PRODUCT';
+
+  const { handleSubmit, register, setValue, getValues, formState } = useForm<AddProductFormInputs>({
+    defaultValues: isEdit ? currModal.additionalData : ADD_PRODUCT_DEFAULT_VALUES,
   });
+
+  const { thumbnail } = getValues();
   const { errors, isSubmitting } = formState;
 
-  const urlRegex = /^\/products/;
-
-  const revalidateProducts = () => {
-    const keysArray = Array.from(cache.keys());
-
-    keysArray.forEach((key) => {
-      if (urlRegex.test(key)) {
-        mutate(key);
-      }
-    });
-  };
-
   const onSubmit: SubmitHandler<AddProductFormInputs> = async (data) => {
-    const status = await submitProduct(data);
+    const config = isEdit ? { isEdit, id: currModal.additionalData.id } : undefined;
+    const status = await submitProduct(data, config);
     if (status === 'success') {
       deleteModal(1);
-      revalidateProducts();
+      revalidatePath(/^\/products/);
     }
   };
 
@@ -99,12 +93,11 @@ const AddProductForm = () => {
         </LabeledInput> */}
       </FormRow>
       <LabeledInput label='Image :'>
-        <DropzoneSpace setValue={setValue} />
+        <DropzoneSpace setValue={setValue} thumbnail={thumbnail} />
       </LabeledInput>
       <div className='modal-actions flex w-full items-center justify-end gap-4 border-t border-neutral-300 bg-white p-4'>
-        <Button variant='light'>Annuler</Button>
         <Button type='submit' loading={isSubmitting} form={FORM_ID}>
-          Ajouter
+          {isEdit ? 'Modifier' : 'Ajouter'}
         </Button>
       </div>
     </form>

@@ -16,7 +16,8 @@ type QueryItem = {
 interface IModal {
   id: string;
   title: string;
-  children: () => JSX.Element;
+  children: ({ id }: { id: string }) => JSX.Element;
+  additionalData?: any;
 }
 
 interface GetProducts {

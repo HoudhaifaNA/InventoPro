@@ -6,16 +6,26 @@ import API from '@/utils/API';
 import notify from '@/utils/notify';
 
 type Status = 'success' | 'error';
-const submitProduct: SubmitHandler<AddProductFormInputs> = async (data): Promise<Status> => {
+
+interface Config {
+  isEdit: boolean;
+  id: string | number;
+}
+
+const submitProduct = async (data: AddProductFormInputs, config?: Config): Promise<Status> => {
   const formData = new FormData();
 
   let status: Status = 'success';
   Object.entries(data).map(([key, value]) => {
+    if (key === 'currentShipmentId' && !value) return;
     formData.append(key, value);
   });
 
   try {
-    const res = await API.post('/products', formData);
+    const isEdit = config?.isEdit && config.id;
+    const method = isEdit ? 'patch' : 'post';
+    const url = isEdit ? `/products/${config.id}` : '/products';
+    const res = await API[method](url, formData);
     notify('success', res.data.message);
   } catch (err) {
     console.log(err);

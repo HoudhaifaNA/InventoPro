@@ -42,3 +42,6 @@
 .tremor-TableCell-root {
   @apply font-medium;
 }
+[data-radix-popper-content-wrapper] {
+  left: -10px !important;
+}

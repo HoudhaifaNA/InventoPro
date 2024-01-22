@@ -1,4 +1,4 @@
-import { Poppins } from 'next/font/google';
+import Poppins from 'next/font/local';
 import { useRouter } from 'next/router';
 import type { AppProps } from 'next/app';
 import NextNProgress from 'nextjs-progressbar';
@@ -10,8 +10,18 @@ import Navbar from '@/layout/Navbar';
 import ModalsManager from '@/layout/ModalsManager';
 
 const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
+  src: [
+    { path: '../public/font/Poppins-Regular.ttf', weight: '400' },
+    { path: '../public/font/Poppins-Medium.ttf', weight: '500' },
+    { path: '../public/font/Poppins-Semibold.ttf', weight: '600' },
+    { path: '../public/font/Poppins-Bold.ttf', weight: '700' },
+    { path: '../public/font/Poppins-ExtraBold.ttf', weight: '800' },
+    { path: '../public/font/Poppins-Italic.ttf', weight: '400', style: 'italic' },
+    { path: '../public/font/Poppins-MediumItalic.ttf', weight: '500', style: 'italic' },
+    { path: '../public/font/Poppins-SemiboldItalic.ttf', weight: '600', style: 'italic' },
+    { path: '../public/font/Poppins-BoldItalic.ttf', weight: '700', style: 'italic' },
+    { path: '../public/font/Poppins-ExtraBoldItalic.ttf', weight: '800', style: 'italic' },
+  ],
 });
 
 function MyApp({ Component, pageProps }: AppProps) {

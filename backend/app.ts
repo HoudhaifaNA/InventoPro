@@ -15,7 +15,7 @@ app.use(express.json({ limit: '10kb' }));
 
 app.use('/api/users', usersRoutes);
 
-// app.use(protect);
+app.use(protect);
 app.delete('/api/*', confirmAction);
 app.use('/api/products', productsRoutes);
 app.use('/api/shipments', shipmentsRoutes);

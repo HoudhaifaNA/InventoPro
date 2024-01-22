@@ -1,31 +1,60 @@
-import { ComponentPropsWithoutRef } from 'react';
+import { ReactNode } from 'react';
 import { TextInput } from '@tremor/react';
+import { SubmitHandler, useForm } from 'react-hook-form';
 
 import Button from '@/components/Button';
 import FormRow from '@/components/FormRow';
 import LabeledInput from '@/components/LabeledInput';
 import cn from '@/utils/cn';
+import { useModals } from '@/store';
+import { ConfirmationalInputs, FormType } from './types';
+import submitForm from './submitForm';
+import revalidatePath from '@/utils/revalidatePath';
 
 const FORM_ID = 'confirmationalForm';
 
-interface ConfirmationalFormProps extends Omit<ComponentPropsWithoutRef<'form'>, 'id'> {}
+interface ConfirmationalFormProps {
+  className?: string;
+  type: FormType;
+  id: string | number;
+  children: ReactNode;
+}
 
-const ConfirmationalForm = ({ className, children, ...props }: ConfirmationalFormProps) => {
+const ConfirmationalForm = ({ className, type, id, children }: ConfirmationalFormProps) => {
+  const { deleteModal } = useModals();
+  const { handleSubmit, register, formState } = useForm<ConfirmationalInputs>();
+
+  const { errors, isSubmitting } = formState;
+
+  const onSubmit: SubmitHandler<ConfirmationalInputs> = async (data) => {
+    const status = await submitForm(data, { id, type });
+    if (status === 'success') {
+      deleteModal(1);
+      if (type === 'd-products' || type === 'cancel-sale') {
+        revalidatePath(/^\/products/);
+      }
+    }
+  };
+
   return (
     <form
       id={FORM_ID}
-      {...props}
+      onSubmit={handleSubmit(onSubmit)}
       className={cn('relative flex max-h-[520px] flex-col gap-6 overflow-auto pb-1', className)}
     >
-      {children}
+      <p>{children}</p>
       <FormRow>
-        <LabeledInput label='Mot de pass :' className='basis-1/2'>
-          <TextInput type='password' placeholder='****' />
+        <LabeledInput
+          label='Mot de pass :'
+          className='basis-1/2'
+          isError={!!errors.password}
+          errorMessage={errors.password?.message}
+        >
+          <TextInput type='password' placeholder='****' {...register('password')} />
         </LabeledInput>
       </FormRow>
       <div className='modal-actions flex w-full items-center justify-end gap-4 border-t border-neutral-300 bg-white p-4'>
-        <Button variant='light'>Annuler</Button>
-        <Button type='submit' form={FORM_ID}>
+        <Button type='submit' form={FORM_ID} loading={isSubmitting}>
           Confirmer
         </Button>
       </div>

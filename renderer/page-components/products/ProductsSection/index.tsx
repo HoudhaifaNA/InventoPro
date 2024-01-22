@@ -34,7 +34,7 @@ const ProductsSection = () => {
       return <ErrorMessage error={error} />;
     } else if (isLoading) {
       return <Loading />;
-    } else if (data) {
+    } else if (data?.products && data?.products.length > 0) {
       return (
         <>
           <div
