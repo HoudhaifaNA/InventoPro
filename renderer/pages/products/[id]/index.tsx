@@ -23,11 +23,10 @@ const ProductDetailsPage = () => {
     } else if (isLoading) {
       return <Loading />;
     } else if (data?.product) {
-      const { name, thumbnail, reference, category, company, shipments, stock, retailPrice, wholesalePrice } =
-        data.product;
+      const { name, thumbnail, stock } = data.product;
       return (
         <>
-          <ProductThumbnail name={name} thumbnail={thumbnail} />
+          <ProductThumbnail name={name} thumbnail={thumbnail} stock={stock} />
           <ProductDetails product={data.product} />
         </>
       );

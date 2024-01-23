@@ -1,5 +1,5 @@
 import Button from '@/components/Button';
-import Icon from '@/components/Icon';
+
 import ProductShipments from './ProductShipments';
 import { ProductsWithShipment } from '@/types';
 import ProductActions from '../ProductActions';
@@ -39,7 +39,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
           <ProductActions product={product} />
         </div>
       </div>
-      <ProductShipments />
+      <ProductShipments shipments={shipments} />
     </div>
   );
 };
