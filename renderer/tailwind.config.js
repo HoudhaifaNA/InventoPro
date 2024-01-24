@@ -26,7 +26,7 @@ module.exports = {
       animation: {
         popup: 'popup 0.15s ease forwards',
         closeSignal: 'closeSignal 0.15s ease forwards',
-        showDeleteBtn: 'showDeleteBtn 0.4s ease forwards',
+        showDeleteBtn: 'showDeleteBtn 0.4s .6s ease forwards',
       },
       colors: {
         tremor: {

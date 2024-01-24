@@ -1,65 +1,154 @@
 import { DatePicker, TextInput, NumberInput } from '@tremor/react';
+import { useFormContext, Controller } from 'react-hook-form';
+import { nanoid } from 'nanoid';
 
 import Button from '@/components/Button';
 import FormRow from '@/components/FormRow';
 import LabeledInput from '@/components/LabeledInput';
 import Icon from '@/components/Icon';
+import { Currencies, ShipmentFormInputs } from './types';
+import { Expense } from 'types';
+import { BTN_TYPES, CURRENCY_OPTIONS } from './constants';
+import { useEffect } from 'react';
 
 const FormStepTwo = () => {
+  const {
+    control,
+    register,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useFormContext<ShipmentFormInputs>();
+
+  const [expenses, arrivalDate] = watch(['expenses', 'arrivalDate']);
+
+  useEffect(() => {
+    const calculatedExpenses = expenses.map((exp) => {
+      const { type, cost_in_rmb, cost_in_usd, exr } = exp;
+      let cost_in_dzd = exp.cost_in_dzd;
+      if (type === 'RMB') cost_in_dzd = cost_in_rmb * (exr / 100);
+      if (type === 'USD') cost_in_dzd = cost_in_usd * (exr / 100);
+      return { ...exp, cost_in_dzd };
+    });
+
+    setValue('expenses', calculatedExpenses);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(expenses)]);
+
+  const addExpense = (currency: Currencies) => {
+    let type: Expense['type'] = 'DZD';
+    if (currency === 'Dollar') type = 'USD';
+    if (currency === 'Renminbi') type = 'RMB';
+    const newExpense: Expense = {
+      id: nanoid(),
+      type,
+      raison: '',
+      exr: 0,
+      cost_in_usd: 0,
+      cost_in_rmb: 0,
+      cost_in_dzd: 0,
+    };
+
+    const updatedExpenses = [...expenses, newExpense];
+    setValue('expenses', updatedExpenses);
+  };
+
+  const deleteExpense = (id: string) => {
+    const updatedExpenses = expenses.filter((exp) => exp.id !== id);
+    setValue('expenses', updatedExpenses);
+  };
+
   return (
     <>
       <FormRow>
-        <Button variant='light' icon='add' className='pl-0'>
-          Locale
-        </Button>
-        <Button variant='light' icon='add' className='pl-0'>
-          Dollar
-        </Button>
-        <Button variant='light' icon='add' className='pl-0'>
-          Yuan
-        </Button>
+        {BTN_TYPES.map((type) => {
+          return (
+            <Button variant='light' icon='add' className='pl-0' key={type} onClick={() => addExpense(type)}>
+              {type}
+            </Button>
+          );
+        })}
       </FormRow>
       <FormRow>
         <LabeledInput label="Date d'arrivée :" className='flex-1'>
-          <DatePicker placeholder='Sélectionner une date' />
+          <Controller
+            name='arrivalDate'
+            control={control}
+            render={({ field: { onChange } }) => {
+              return <DatePicker placeholder='Sélectionner une date' value={arrivalDate} onValueChange={onChange} />;
+            }}
+          />
         </LabeledInput>
         <LabeledInput id='shipment-id' label="ID d'expédition :" className='flex-1'>
-          <TextInput placeholder='EXP-454654EF9A' />
+          <TextInput placeholder='EXP-454654EF9A' {...register('shipmentCode')} />
         </LabeledInput>
       </FormRow>
-      <FormRow>
-        <LabeledInput label='Raison :' className='flex-1'>
-          <TextInput placeholder="Billet d'avion" />
-        </LabeledInput>
-        <LabeledInput id='cost' label='Coût :' className='flex-1'>
-          <NumberInput placeholder='170' min={0} enableStepper={false} />
-        </LabeledInput>
-      </FormRow>
-      <FormRow>
-        <LabeledInput label='Raison :' className='basis-1/2'>
-          <TextInput placeholder="Billet d'avion" />
-        </LabeledInput>
-        <LabeledInput id='exchange-rate' label='Prix de ¥100 :' className='flex-1'>
-          <NumberInput placeholder='18000' min={0} enableStepper={false} />
-        </LabeledInput>
-        <LabeledInput id='cost' label='Coût :' className='flex-1'>
-          <NumberInput placeholder='170' min={0} enableStepper={false} />
-        </LabeledInput>
-      </FormRow>
-      <FormRow>
-        <LabeledInput label='Raison :' className='basis-1/2'>
-          <TextInput placeholder="Billet d'avion" />
-        </LabeledInput>
-        <LabeledInput id='exchange-rate' label='Prix de $100 :' className='flex-1'>
-          <NumberInput placeholder='18000' min={0} enableStepper={false} />
-        </LabeledInput>
-        <LabeledInput id='cost' label='Coût :' className='flex-1'>
-          <NumberInput placeholder='170' min={0} enableStepper={false} />
-        </LabeledInput>
-        <Button className='group-hover:animate-showDeleteBtn absolute right-0 top-7 opacity-0' squared>
-          <Icon icon='close' className='h-5 w-5' />
-        </Button>
-      </FormRow>
+      {expenses.map(({ id, type }, ind) => {
+        const { icon, field } = CURRENCY_OPTIONS[type];
+        const expError = errors.expenses && errors.expenses[ind] ? errors.expenses[ind] : null;
+
+        return (
+          <FormRow key={id}>
+            <LabeledInput
+              id={`raison-${ind}`}
+              label='Raison :'
+              className='basis-[49%]'
+              isError={!!expError?.raison}
+              errorMessage={expError?.raison && expError?.raison.message}
+            >
+              <TextInput
+                {...register(`expenses.${ind}.raison`, { required: { value: true, message: 'Raison est requis' } })}
+                placeholder="Billet d'avion"
+              />
+            </LabeledInput>
+            {type !== 'DZD' && (
+              <LabeledInput
+                id={`exr-${ind}`}
+                label={`Prix de ${icon}100 :`}
+                className='flex-1'
+                isError={!!expError?.exr}
+                errorMessage={expError?.exr && expError?.exr.message}
+              >
+                <NumberInput
+                  {...register(`expenses.${ind}.exr`, {
+                    valueAsNumber: true,
+                    required: { value: true, message: 'Taux de change est requise' },
+                    min: { value: 0, message: 'Minimum est 0' },
+                  })}
+                  placeholder='18000'
+                  min={0}
+                  enableStepper={false}
+                />
+              </LabeledInput>
+            )}
+            <LabeledInput
+              id='cost'
+              label='Coût :'
+              className='flex-1'
+              isError={!!expError?.[field]}
+              errorMessage={expError?.[field] && expError?.[field]?.message}
+            >
+              <NumberInput
+                {...register(`expenses.${ind}.${field}`, {
+                  valueAsNumber: true,
+                  required: { value: true, message: 'Coût est requis' },
+                  min: { value: 0, message: 'Minimum est 0' },
+                })}
+                placeholder='170'
+                min={0}
+                enableStepper={false}
+              />
+            </LabeledInput>
+            <Button
+              className='group-hover:animate-showDeleteBtn absolute right-0 top-8 opacity-0'
+              squared
+              onClick={() => deleteExpense(id)}
+            >
+              <Icon icon='close' className='h-5 w-5' />
+            </Button>
+          </FormRow>
+        );
+      })}
     </>
   );
 };

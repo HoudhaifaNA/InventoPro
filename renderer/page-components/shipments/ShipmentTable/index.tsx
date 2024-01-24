@@ -2,10 +2,14 @@ import { Badge, Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRo
 
 import Button from '@/components/Button';
 import Icon from '@/components/Icon';
+import { ShipmentSelect } from 'types';
+import formatUIDate from '@/utils/formatUIDate';
 
-const PLACEHOLDERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+interface ShipmentsTableProps {
+  shipments: ShipmentSelect[];
+}
 
-const ShipmentsTable = () => {
+const ShipmentsTable = ({ shipments }: ShipmentsTableProps) => {
   return (
     <Table className='h-full bg-white pb-8'>
       <TableHead>
@@ -28,23 +32,24 @@ const ShipmentsTable = () => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {PLACEHOLDERS.map((el) => {
+        {shipments.map((shipment, ind) => {
+          const { id, shipmentDate, arrivalDate, total, productsCount, shipmentCode } = shipment;
           return (
-            <TableRow key={el}>
+            <TableRow key={id}>
               <TableCell>
                 <input type='checkbox' />
               </TableCell>
-              <TableCell>{el} </TableCell>
-              <TableCell>EXP-454516XS9946</TableCell>
-              <TableCell>14-07-2022</TableCell>
-              <TableCell>4</TableCell>
-              <TableCell>458900.00 DA</TableCell>
+              <TableCell>{ind + 1} </TableCell>
+              <TableCell>{shipmentCode || '--'}</TableCell>
+              <TableCell>{formatUIDate(shipmentDate)}</TableCell>
+              <TableCell>{productsCount}</TableCell>
+              <TableCell>{total}.00 DA</TableCell>
               <TableCell>
                 <Badge size='xs'>
-                  <span className='text-xs'>En rupture de stock</span>
+                  <span className='text-xs'>{arrivalDate ? 'Arrived' : 'In way'}</span>
                 </Badge>
               </TableCell>
-              <TableCell>23-04-2023</TableCell>
+              <TableCell>{formatUIDate(arrivalDate)}</TableCell>
               <TableCell>
                 <Button variant='light'>
                   <Icon icon='more_horiz' className='h-5 w-5' />

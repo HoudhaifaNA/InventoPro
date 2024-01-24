@@ -4,6 +4,8 @@ export const ADD_PRODUCT_DEFAULT_VALUES: AddProductFormInputs = {
   name: '',
   company: '',
   category: '',
+  retailPercentage: 0,
+  wholesalePretailPercentage: 0,
   retailPrice: 0,
   wholesalePrice: 0,
   stock: 0,

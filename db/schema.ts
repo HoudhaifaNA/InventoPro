@@ -63,6 +63,7 @@ export const shipmentsToProducts = sqliteTable(
       .references(() => shipments.id),
     quantity: integer('quantity').notNull().default(0),
     unitPrice: integer('unit_price').notNull().default(0),
+    expenseSlice: integer('expense_slice').notNull().default(0),
     totalPrice: integer('total_price').notNull().default(0),
   },
   (t) => ({

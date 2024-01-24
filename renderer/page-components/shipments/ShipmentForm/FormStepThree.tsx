@@ -1,3 +1,8 @@
+import { useFormContext } from 'react-hook-form';
+import { ShipmentFormInputs } from './types';
+import formatUIDate from '@/utils/formatUIDate';
+import { CURRENCY_OPTIONS } from './constants';
+
 interface ConfirmationDetailItemProps {
   label: string;
   value: string;
@@ -30,33 +35,38 @@ export const ConfirmationDetailCategory = ({ title, items }: ConfirmationDetailC
   );
 };
 
-const CATEGORIES = [
-  {
-    title: 'General',
-    items: [
-      { label: 'ID', value: 'EXP-41654654AFA9J' },
-      { label: 'Dates', value: '15-04-2023 ~ N/A' },
-    ],
-  },
-  {
-    title: 'Produits',
-    items: [
-      { label: 'Lustre A/B Neo (459)', value: '17800.00 DA' },
-      { label: 'Pompila Cashmir (136)', value: '49500.00 DA' },
-      { label: 'Veste noir (270)', value: '1800.00 DA' },
-    ],
-  },
-  {
-    title: 'Depenses',
-    items: [
-      { label: "Billet d'avion", value: '$180 × 17000 DA = 22000.00 DA' },
-      { label: 'Shipment dacoordo', value: '¥180 × 9000 DA = 12000.00 DA' },
-      { label: "Main d'oeuvre", value: '37000.00 DA' },
-    ],
-  },
-];
-
 const FormStepThree = () => {
+  const { getValues } = useFormContext<ShipmentFormInputs>();
+  const { shipmentCode, shipmentDate, arrivalDate, productsNames, expenses, productsBought } = getValues();
+
+  const CATEGORIES = [
+    {
+      title: 'General',
+      items: [
+        { label: 'ID', value: shipmentCode || '--' },
+        { label: 'Dates', value: `${formatUIDate(shipmentDate)} ~ ${formatUIDate(arrivalDate)}` },
+      ],
+    },
+    {
+      title: 'Produits',
+      items: productsBought.map(({ quantity, totalPrice }, ind) => {
+        return { label: `${productsNames[ind]} (${quantity})`, value: `${totalPrice}.00 DA` };
+      }),
+    },
+    {
+      title: 'Depenses',
+      items: expenses.map(({ raison, type, exr, cost_in_rmb, cost_in_usd, cost_in_dzd }, ind) => {
+        let field;
+        if (type === 'RMB') field = cost_in_rmb;
+        if (type === 'USD') field = cost_in_usd;
+        return {
+          label: raison,
+          value: `${type !== 'DZD' ? `${CURRENCY_OPTIONS[type].icon}${field} × ${exr} DA =` : ''} ${cost_in_dzd}.00 DA`,
+        };
+      }),
+    },
+  ];
+
   return (
     <>
       {CATEGORIES.map((cat) => {

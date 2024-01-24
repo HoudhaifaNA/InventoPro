@@ -13,6 +13,7 @@ interface Config {
 }
 
 const submitShipment = async (data: ShipmentFormInputs, config?: Config): Promise<Status> => {
+  let status: Status = 'success';
   try {
     const isEdit = config?.isEdit && config.id;
     const method = isEdit ? 'patch' : 'post';

@@ -1,4 +1,4 @@
-import { ProductSelect, ShipmentSelect } from '../../db/schema';
+import { ProductSelect, ShipmentSelect, ShipmentToProductSelect } from '../../db/schema';
 import { Expense, Product } from '../../types';
 
 interface ProductsWithShipment extends ProductSelect {
@@ -39,4 +39,5 @@ export type {
   Product,
   ProductsWithShipment,
   ShipmentSelect,
+  ShipmentToProductSelect,
 };

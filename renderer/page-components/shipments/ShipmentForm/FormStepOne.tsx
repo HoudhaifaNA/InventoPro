@@ -23,15 +23,15 @@ const FormStepOne = () => {
   } = useFormContext<ShipmentFormInputs>();
   const { data } = useSWR<ProductsList>('/products/list', fetcher);
 
-  const [productsList, productsBought] = watch(['productsList', 'productsBought']);
+  const [productsIds, productsBought] = watch(['productsIds', 'productsBought']);
 
   useEffect(() => {
-    const filteredProducts = productsBought.filter((pB) => productsList.indexOf(pB.id) !== -1);
+    const filteredProducts = productsBought.filter((pB) => productsIds.indexOf(pB.id) !== -1);
 
     setValue('productsBought', filteredProducts);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productsList, setValue]);
+  }, [productsIds, setValue]);
 
   const onAddModal = () => addModal({ id: nanoid(), title: 'Ajouter un produit', children: AddProductForm });
 
@@ -56,7 +56,7 @@ const FormStepOne = () => {
         </LabeledInput>
         <LabeledInput label='Liste de produits :' className='flex-1'>
           <Controller
-            name='productsList'
+            name='productsIds'
             control={control}
             render={({ field: { onChange, value } }) => {
               return (
@@ -89,22 +89,60 @@ const FormStepOne = () => {
         </LabeledInput>
       </FormRow>
       {data?.products &&
-        productsList.map((id, ind) => {
+        productsIds.map((id, ind) => {
           const currProduct = data.products.find((product) => product.id === id);
           if (currProduct) {
+            setValue(`productsNames.${ind}`, currProduct.name);
             const productError =
               errors.productsBought && errors.productsBought[ind] ? errors.productsBought[ind] : null;
 
             return (
               <FormRow key={id}>
-                <LabeledInput label='Nom du produit :' className='hidden basis-1/2'>
+                <LabeledInput label='Nom du produit :' className='hidden'>
                   <TextInput {...register(`productsBought.${ind}.id`)} value={id} />
                 </LabeledInput>
-                <LabeledInput label='Nom du produit :' className='basis-1/2'>
+                <LabeledInput label='Nom du produit :' className='basis-[30%]'>
                   <TextInput value={currProduct.name} disabled />
                 </LabeledInput>
                 <LabeledInput
-                  id='product-price'
+                  id={`product-quantity-${ind}`}
+                  label='Quantité :'
+                  className='basis-[17%]'
+                  isError={!!productError?.quantity}
+                  errorMessage={productError?.quantity && productError?.quantity.message}
+                >
+                  <NumberInput
+                    {...register(`productsBought.${ind}.quantity`, {
+                      valueAsNumber: true,
+                      required: { value: true, message: 'Quantité est requise' },
+                      min: { value: 1, message: 'Quantité minimum 1' },
+                    })}
+                    placeholder='10'
+                    min={0}
+                    enableStepper={false}
+                    className='min-w-full'
+                  />
+                </LabeledInput>
+                <LabeledInput
+                  id={`product-expenseSlice-${ind}`}
+                  label='Tranche de dép :'
+                  className='flex-1'
+                  isError={!!productError?.expenseSlice}
+                  errorMessage={productError?.expenseSlice && productError?.expenseSlice.message}
+                >
+                  <NumberInput
+                    {...register(`productsBought.${ind}.expenseSlice`, {
+                      valueAsNumber: true,
+                      required: { value: true, message: 'Tranche est requis' },
+                      min: { value: 0, message: 'Minimum est 0' },
+                    })}
+                    placeholder='5000'
+                    min={0}
+                    enableStepper={false}
+                  />
+                </LabeledInput>
+                <LabeledInput
+                  id={`product-price-${ind}`}
                   label='Prix :'
                   className='flex-1'
                   isError={!!productError?.totalPrice}
@@ -112,26 +150,11 @@ const FormStepOne = () => {
                 >
                   <NumberInput
                     {...register(`productsBought.${ind}.totalPrice`, {
+                      valueAsNumber: true,
                       required: { value: true, message: 'Prix est requis' },
+                      min: { value: 0, message: 'Minimum est 0' },
                     })}
                     placeholder='100000'
-                    min={0}
-                    enableStepper={false}
-                  />
-                </LabeledInput>
-                <LabeledInput
-                  id='product-quantity'
-                  label='Quantité :'
-                  className='flex-1'
-                  isError={!!productError?.quantity}
-                  errorMessage={productError?.quantity && productError?.quantity.message}
-                >
-                  <NumberInput
-                    {...register(`productsBought.${ind}.quantity`, {
-                      required: { value: true, message: 'Quantité est requise' },
-                      min: { value: 1, message: 'Quantité minimum 1' },
-                    })}
-                    placeholder='10'
                     min={0}
                     enableStepper={false}
                   />

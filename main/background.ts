@@ -27,7 +27,7 @@ if (isProd) {
     await mainWindow.loadURL('app://./login');
   } else {
     const port = process.argv[2];
-    await mainWindow.loadURL(`http://localhost:${port}/products`);
+    await mainWindow.loadURL(`http://localhost:${port}/shipments`);
     mainWindow.webContents.openDevTools();
   }
 })();

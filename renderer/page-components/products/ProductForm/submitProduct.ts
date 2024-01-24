@@ -17,7 +17,10 @@ const submitProduct = async (data: AddProductFormInputs, config?: Config): Promi
 
   let status: Status = 'success';
   Object.entries(data).map(([key, value]) => {
-    if (key === 'currentShipmentId' && !value) return;
+    if (key === 'currentShipmentId' && !value) {
+      formData.append(key, 'undefined');
+      return;
+    }
     formData.append(key, value);
   });
 

@@ -32,6 +32,26 @@ export const getShipments = catchAsync(async (_req, res) => {
   return res.status(200).json({ results: shipments.length, shipments });
 });
 
+export const getProductShipments = catchAsync(async (req, res) => {
+  const { productId } = req.params;
+  const shipments = await db.query.shipmentsToProducts.findMany({
+    where: eq(shipmentsToProducts.productId, productId),
+    columns: {
+      unitPrice: true,
+    },
+    with: {
+      shipments: {
+        columns: {
+          id: true,
+          shipmentDate: true,
+          shipmentCode: true,
+        },
+      },
+    },
+  });
+  return res.status(200).json({ shipments });
+});
+
 export const createShipment = catchAsync((req, res, next) => {
   const { shipmentDate, expenses, shipmentCode, productsBought, arrivalDate } = req.body;
 
@@ -59,13 +79,14 @@ export const createShipment = catchAsync((req, res, next) => {
   const newShipment = db.transaction((tx) => {
     const newShipment = tx.insert(shipments).values(newShipmentBody).returning().get();
 
-    productsBought.forEach(({ id, quantity, totalPrice }) => {
-      const unitPrice = (expensesTotal / productsCount + totalPrice) / quantity;
+    productsBought.forEach(({ id, quantity, expenseSlice, totalPrice }) => {
+      const unitPrice = (expenseSlice + totalPrice) / quantity;
 
       const shipmentToProductBody: ShipmentToProductInsert = {
         productId: id,
         shipmentId: newShipment.id,
         quantity,
+        expenseSlice,
         unitPrice,
         totalPrice,
       };
@@ -149,13 +170,14 @@ export const updateShipment = catchAsync((req, res, next) => {
       }
     });
 
-    productsBought.forEach(({ id, quantity, totalPrice }) => {
-      const unitPrice = (expensesTotal / productsCount + totalPrice) / quantity;
+    productsBought.forEach(({ id, quantity, expenseSlice, totalPrice }) => {
+      const unitPrice = (expenseSlice + totalPrice) / quantity;
 
       const shipmentToProductBody: ShipmentToProductInsert = {
         productId: id,
         shipmentId: updatedShipment.id,
         quantity,
+        expenseSlice,
         unitPrice,
         totalPrice,
       };

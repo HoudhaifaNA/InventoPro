@@ -42,6 +42,14 @@
 .tremor-TableCell-root {
   @apply font-medium;
 }
+
+.tremor-SearchSelectItem-root > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
 [data-radix-popper-content-wrapper] {
   left: -10px !important;
 }

@@ -10,9 +10,12 @@ export interface ProductsList {
 
 export interface ShipmentFormInputs {
   shipmentDate: Date;
-  arrivalDate: Date | null;
+  arrivalDate?: Date;
   shipmentCode: string;
-  productsList: string[];
+  productsIds: string[];
+  productsNames: string[];
   productsBought: Product[];
-  expense: Expense[];
+  expenses: Expense[];
 }
+
+export type Currencies = 'Dinar' | 'Dollar' | 'Renminbi';

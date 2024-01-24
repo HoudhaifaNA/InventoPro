@@ -3,8 +3,12 @@ export interface AddProductFormInputs {
   reference?: string;
   company?: string;
   category?: string;
-  retailPrice?: number;
-  wholesalePrice?: number;
-  stock?: number;
+  retailPercentage: number;
+  wholesalePercentage: number;
+  retailPrice: number;
+  wholesalePrice: number;
+  stock: number;
   thumbnail?: File | string | null;
+  currentShipmentId?: string;
+  unitPrice?: number;
 }

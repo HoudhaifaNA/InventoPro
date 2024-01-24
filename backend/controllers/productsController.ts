@@ -177,6 +177,7 @@ export const updateProduct = catchAsync(async (req, res, next) => {
   const product = await queryProduct(id);
   const oldThumbnail = product?.thumbnail;
   let thumbnail = null;
+  let shipmentId = currentShipmentId;
 
   try {
     if (!product) {
@@ -190,9 +191,11 @@ export const updateProduct = catchAsync(async (req, res, next) => {
       thumbnail = oldThumbnail;
     }
 
-    const shipmentIndex = product?.shipments.findIndex((shipment) => shipment.shipmentId === currentShipmentId);
+    if (currentShipmentId === 'undefined') shipmentId = null;
 
-    if (currentShipmentId && shipmentIndex === -1) {
+    const shipmentIndex = product?.shipments.findIndex((shipment) => shipment.shipmentId === shipmentId);
+
+    if (shipmentId && shipmentIndex === -1) {
       return next(new AppError('Invalid shipment', 401));
     }
 
@@ -202,7 +205,7 @@ export const updateProduct = catchAsync(async (req, res, next) => {
       thumbnail,
       company,
       category,
-      currentShipmentId,
+      currentShipmentId: shipmentId,
       retailPercentage,
       wholesalePercentage,
       retailPrice,

@@ -21,18 +21,19 @@ const ShipmentForm = ({ id }: { id: string }) => {
   const isEdit = currModal && id === 'EDIT_SHIPMENT';
 
   const methods = useForm<ShipmentFormInputs>({ defaultValues: ADD_SHIPMENT_DEFAULT_VALUES });
-  const { handleSubmit } = methods;
+  const {
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
 
   const onSubmit: SubmitHandler<ShipmentFormInputs> = async (data) => {
-    console.log(data);
-
     if (step === 3) {
-      // const config = isEdit ? { isEdit, id: currModal.additionalData.id } : undefined;
-      // const status = await submitShipment(data, config);
-      // if (status === 'success') {
-      //   deleteModal(1);
-      //   revalidatePath(/^\/shipments/);
-      // }
+      const config = isEdit ? { isEdit, id: currModal.additionalData.id } : undefined;
+      const status = await submitShipment(data, config);
+      if (status === 'success') {
+        deleteModal(1);
+        revalidatePath(/^\/shipments/);
+      }
     } else {
       setStep(step + 1);
     }
@@ -55,7 +56,7 @@ const ShipmentForm = ({ id }: { id: string }) => {
             Retour
           </Button>
         )}
-        <Button type='submit' form={FORM_ID}>
+        <Button type='submit' loading={isSubmitting} form={FORM_ID}>
           {step === 3 ? 'Ajouter' : 'Suivante'}
         </Button>
       </div>
