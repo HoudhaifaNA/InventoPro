@@ -1,4 +1,4 @@
-export type FormType = 'd-products' | 'd-shipment' | 'cancel-sale';
+export type FormType = 'd-products' | 'd-shipments' | 'cancel-sale';
 
 export interface ConfirmationalInputs {
   password: string;

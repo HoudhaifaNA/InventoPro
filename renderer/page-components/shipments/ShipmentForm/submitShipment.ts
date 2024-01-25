@@ -1,4 +1,3 @@
-import { SubmitHandler } from 'react-hook-form';
 import { AxiosError } from 'axios';
 
 import { ShipmentFormInputs } from './types';
@@ -15,10 +14,14 @@ interface Config {
 const submitShipment = async (data: ShipmentFormInputs, config?: Config): Promise<Status> => {
   let status: Status = 'success';
   try {
+    let values = data;
+
+    //@ts-ignore
+    if (!data.arrivalDate) values.arrivalDate = null;
     const isEdit = config?.isEdit && config.id;
     const method = isEdit ? 'patch' : 'post';
     const url = isEdit ? `/shipments/${config.id}` : '/shipments';
-    const res = await API[method](url, data);
+    const res = await API[method](url, values);
     notify('success', res.data.message);
   } catch (err) {
     console.log(err);

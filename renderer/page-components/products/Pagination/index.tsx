@@ -2,16 +2,16 @@
 import { useEffect } from 'react';
 import { Select, SelectItem } from '@tremor/react';
 
-import { useProductsUrl } from '@/store';
+import { useResources } from '@/store';
 import Icon from '@/components/Icon';
 import Button from '@/components/Button';
 
 const LIMITS = [100, 200, 300, 400, 500];
 
 const Pagination = ({ results }: { results: number }) => {
-  const { queries, addQuery } = useProductsUrl((state) => state);
-  const page = queries.page ? Number(queries.page) : 1;
-  const limit = queries.limit ? Number(queries.limit) : 5;
+  const { addQuery, products } = useResources((state) => state);
+  const page = products.queries.page ? Number(products.queries.page) : 1;
+  const limit = products.queries.limit ? Number(products.queries.limit) : 100;
 
   const lastPage = Math.ceil(results / limit);
   const firstRowNum = (page - 1) * limit + 1;
@@ -20,11 +20,11 @@ const Pagination = ({ results }: { results: number }) => {
   const isLastPage = page === lastPage;
 
   const setPage = (page: number) => {
-    addQuery({ query: 'page', value: page });
+    addQuery('products', { query: 'page', value: page });
   };
 
   const setRows = (rows: number) => {
-    addQuery({ query: 'limit', value: rows });
+    addQuery('products', { query: 'limit', value: rows });
   };
 
   const onOptionClick = (option: string) => {

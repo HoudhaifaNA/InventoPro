@@ -3,25 +3,25 @@ import { Badge, Select, SelectItem } from '@tremor/react';
 
 import LabeledInput from '@/components/LabeledInput';
 import NumberRangeInput from '@/components/NumberRangeInput';
-import { useProductsUrl, useSavedData } from '@/store';
+import { useResources, useSavedData } from '@/store';
 
 const Filter = () => {
   const [prevOrderBy, setOrderBy] = useState('updatedAt');
-  const { addQuery, deleteQuery, results } = useProductsUrl((state) => state);
+  const { addQuery, deleteQuery, products } = useResources((state) => state);
   const { categories, companies } = useSavedData((state) => state);
 
   const addOrderByFilter = (orderBy) => {
     const orderByQuery = prevOrderBy === orderBy ? `-${orderBy}` : orderBy;
 
-    addQuery({ query: 'orderBy', value: orderByQuery });
+    addQuery('products', { query: 'orderBy', value: orderByQuery });
     setOrderBy(orderByQuery);
   };
 
   const filter = (query: string, value) => {
     if (!value || value === '_') {
-      deleteQuery(query);
+      deleteQuery('products', query);
     } else {
-      addQuery({ query, value });
+      addQuery('products', { query, value });
     }
   };
 
@@ -30,7 +30,7 @@ const Filter = () => {
       <div className='flex items-center justify-between py-2'>
         <span className='text-xl font-semibold'>Produits</span>
         <Badge className='bg-indigo-100 text-indigo-900'>
-          <b>{results}</b> produits
+          <b>{products.results}</b> produits
         </Badge>
       </div>
       <div className='flex flex-col gap-8'>

@@ -1,7 +1,10 @@
 import { useFormContext } from 'react-hook-form';
+
 import { ShipmentFormInputs } from './types';
+import { calculateExpensesTotal, calculateShipmentTotal } from 'utils/calculations';
 import formatUIDate from '@/utils/formatUIDate';
 import { CURRENCY_OPTIONS } from './constants';
+import formatFiatValue from '@/utils/formatFiatValue';
 
 interface ConfirmationDetailItemProps {
   label: string;
@@ -38,6 +41,8 @@ export const ConfirmationDetailCategory = ({ title, items }: ConfirmationDetailC
 const FormStepThree = () => {
   const { getValues } = useFormContext<ShipmentFormInputs>();
   const { shipmentCode, shipmentDate, arrivalDate, productsNames, expenses, productsBought } = getValues();
+  const expensesTotal = calculateExpensesTotal(expenses);
+  const productsTotal = calculateShipmentTotal(productsBought);
 
   const CATEGORIES = [
     {
@@ -50,20 +55,35 @@ const FormStepThree = () => {
     {
       title: 'Produits',
       items: productsBought.map(({ quantity, totalPrice }, ind) => {
-        return { label: `${productsNames[ind]} (${quantity})`, value: `${totalPrice}.00 DA` };
+        return { label: `${productsNames[ind]} (${quantity})`, value: formatFiatValue(totalPrice) };
       }),
     },
     {
-      title: 'Depenses',
-      items: expenses.map(({ raison, type, exr, cost_in_rmb, cost_in_usd, cost_in_dzd }, ind) => {
+      title: 'Dépenses',
+      items: expenses.map(({ raison, type, exr, cost_in_rmb, cost_in_usd, cost_in_dzd }) => {
         let field;
         if (type === 'RMB') field = cost_in_rmb;
         if (type === 'USD') field = cost_in_usd;
         return {
           label: raison,
-          value: `${type !== 'DZD' ? `${CURRENCY_OPTIONS[type].icon}${field} × ${exr} DA =` : ''} ${cost_in_dzd}.00 DA`,
+          value: `${type !== 'DZD' ? `${CURRENCY_OPTIONS[type].icon}${field} × ${exr} DA =` : ''} ${formatFiatValue(
+            cost_in_dzd
+          )}`,
         };
       }),
+    },
+    {
+      title: 'Totaux',
+      items: [
+        {
+          label: 'Total des dépenses',
+          value: formatFiatValue(expensesTotal),
+        },
+        {
+          label: 'Total',
+          value: formatFiatValue(expensesTotal + productsTotal),
+        },
+      ],
     },
   ];
 

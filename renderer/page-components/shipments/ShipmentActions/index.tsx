@@ -1,39 +1,46 @@
 import Button from '@/components/Button';
 import Icon from '@/components/Icon';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/Dropdown';
-import { useDisplay, useModals } from '@/store';
-import AddProductForm from '../ProductForm';
-import { ProductsWithShipment } from '@/types';
+import { useModals } from '@/store';
+import { ShipmentWithProducts } from '@/types';
 import ConfirmationalForm from '@/components/ConfirmationalForm';
+import ShipmentForm from '../ShipmentForm';
+import formatUIDate from '@/utils/formatUIDate';
 
 interface ProductActionsProps {
   multipleDisplay?: boolean;
-  product: ProductsWithShipment;
+  shipment: ShipmentWithProducts;
 }
 
-const ProductActions = ({ product, multipleDisplay }: ProductActionsProps) => {
+const ProductActions = ({ shipment }: ProductActionsProps) => {
   const { addModal } = useModals((state) => state);
-  const display = useDisplay((state) => state.display);
 
-  const isGridDisplay = display === 'grid' && multipleDisplay;
-
-  const DeleteProductModal = () => {
+  const DeleteShipmentModal = () => {
     return (
-      <ConfirmationalForm type='d-products' ids={product.id}>
-        Êtes-vous sûr de vouloir supprimer le <b> {product.name} </b> ?
+      <ConfirmationalForm type='d-shipments' ids={shipment.id}>
+        Êtes-vous sûr de vouloir supprimer le{' '}
+        <b>
+          {shipment.shipmentCode || '--'} ({formatUIDate(shipment.shipmentDate)})
+        </b>{' '}
+        ?
       </ConfirmationalForm>
     );
   };
 
   const onEditModal = () => {
-    addModal({ id: 'EDIT_PRODUCT', title: 'Modifier un produit', children: AddProductForm, additionalData: product });
+    addModal({
+      id: 'EDIT_SHIPMENT',
+      title: 'Modifier une expédition',
+      children: ShipmentForm,
+      additionalData: shipment,
+    });
   };
 
   const onDeleteModal = () => {
     addModal({
-      id: 'DELETE_PRODUCT',
-      title: 'Supprimer un produit',
-      children: DeleteProductModal,
+      id: 'DELETE_SHIPMENT',
+      title: 'Supprimer une expédition',
+      children: DeleteShipmentModal,
     });
   };
 
@@ -41,8 +48,8 @@ const ProductActions = ({ product, multipleDisplay }: ProductActionsProps) => {
     <DropdownMenu>
       <DropdownMenuTrigger className='outline-none'>
         <div>
-          <Button variant='light' className='w-full' squared={!isGridDisplay}>
-            {isGridDisplay ? 'More' : <Icon icon='more_horiz' className='h-5 w-5' />}
+          <Button variant='light' className='w-full' squared>
+            <Icon icon='more_horiz' className='h-5 w-5' />
           </Button>
         </div>
       </DropdownMenuTrigger>

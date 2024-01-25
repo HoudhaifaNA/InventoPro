@@ -5,6 +5,8 @@ import clsx from 'clsx';
 
 import ProductActions from '../ProductActions';
 import { ProductsWithShipment } from '@/types';
+import formatFiatValue from '@/utils/formatFiatValue';
+import { useResources } from '@/store';
 
 interface ProductItemProps extends ProductsWithShipment {
   display: 'grid' | 'list';
@@ -13,28 +15,38 @@ interface ProductItemProps extends ProductsWithShipment {
 const BulletSperator = () => <div className='h-1 w-1 rounded bg-black' />;
 
 const ProductItem = (props: ProductItemProps) => {
+  const { selectItem, products } = useResources((state) => state);
+
   const { display, ...product } = props;
-  const { name, reference, thumbnail, category, shipments, company, stock, retailPrice, wholesalePrice } = product;
+  const { id, name, reference, thumbnail, category, shipments, company, stock, retailPrice, wholesalePrice } = product;
   const imageSrc = thumbnail ? `http://localhost:5500/api/attachments/${thumbnail}` : '/no-image.jpg';
   const isGridDisplay = display === 'grid';
+  const isSelected = products.selectedItems.indexOf(id) !== -1;
 
   return (
     <div
       className={clsx(
-        'flex gap-6 rounded bg-neutral-100 p-4 shadow-sm',
-        isGridDisplay ? 'col-span-1	flex-col' : 'h-28 w-full min-w-[1000px] flex-row items-center'
+        'flex gap-6 rounded bg-neutral-100 p-4 shadow-sm transition-colors',
+        isGridDisplay ? 'col-span-1	flex-col' : 'h-28 w-full min-w-[1000px] flex-row items-center',
+        isSelected ? 'bg-rose-200 ' : ''
       )}
+      onClick={(e) => {
+        e.preventDefault();
+        if (e.ctrlKey) {
+          selectItem('products', id);
+        }
+      }}
     >
       <div
         className={clsx(
-          'relative overflow-hidden rounded bg-indigo-200',
+          'relative overflow-hidden rounded',
           isGridDisplay ? 'h-56 min-h-[224px] w-full' : 'h-20 min-h-[80px] w-20 min-w-[80px]'
         )}
       >
         <Image src={imageSrc} alt='product' fill />
       </div>
       <div className='flex flex-1 flex-col gap-4'>
-        <Link href={`/products/${product.id}`}>
+        <Link href={`/products/${id}`}>
           <p className='truncate text-sm font-semibold'>{name}</p>
         </Link>
         <span className='text-xs font-medium'>
@@ -64,11 +76,11 @@ const ProductItem = (props: ProductItemProps) => {
       <div className='flex min-w-[25%] basis-1/4 items-end justify-between'>
         <div className='flex flex-col justify-between gap-6 text-sm'>
           <span className='whitespace-nowrap text-xs uppercase opacity-80'>Prix ​​en détail</span>
-          <span className='whitespace-nowrap font-semibold'>{retailPrice}.00 DA</span>
+          <span className='whitespace-nowrap font-semibold'>{formatFiatValue(retailPrice)}</span>
         </div>
         <div className='flex flex-col justify-between gap-6 text-sm'>
           <span className='whitespace-nowrap text-xs uppercase opacity-80'>Prix ​​de gros</span>
-          <span className='whitespace-nowrap font-semibold'>{wholesalePrice}.00 DA</span>
+          <span className='whitespace-nowrap font-semibold'>{formatFiatValue(wholesalePrice)}</span>
         </div>
       </div>
       <ProductActions product={product} multipleDisplay />

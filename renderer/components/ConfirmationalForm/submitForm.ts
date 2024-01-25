@@ -8,14 +8,16 @@ type Status = 'success' | 'error';
 
 interface Config {
   type: FormType;
-  id: string | number;
+  ids: string | number;
 }
 
-const submitForm = async (data: ConfirmationalInputs, { type, id }: Config): Promise<Status> => {
+const submitForm = async (data: ConfirmationalInputs, { type, ids }: Config): Promise<Status> => {
   let status: Status = 'success';
   let url;
   if (type === 'd-products') {
-    url = `/products/${id}`;
+    url = `/products/${ids}`;
+  } else if (type === 'd-shipments') {
+    url = `/shipments/${ids}`;
   }
 
   try {

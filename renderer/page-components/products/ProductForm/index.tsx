@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { NumberInput, SearchSelect, SearchSelectItem, TextInput } from '@tremor/react';
 import useSWR from 'swr';
@@ -16,7 +17,6 @@ import { fetcher } from '@/utils/API';
 import { ShipmentSelect, ShipmentToProductSelect } from 'types';
 import formatUIDate from '@/utils/formatUIDate';
 import ShipmentForm from '@/page-components/shipments/ShipmentForm';
-import { useEffect } from 'react';
 
 const FORM_ID = 'addProductForm';
 
@@ -85,7 +85,7 @@ const AddProductForm = ({ id }: { id: string }) => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentShipmentId]);
+  }, [currentShipmentId, unitPrice, data]);
 
   return (
     <form
@@ -121,7 +121,7 @@ const AddProductForm = ({ id }: { id: string }) => {
         >
           <NumberInput
             placeholder='0%'
-            disabled={!isEdit}
+            disabled={!currentShipmentId}
             enableStepper={false}
             {...register('retailPercentage', {
               valueAsNumber: true,
@@ -155,7 +155,7 @@ const AddProductForm = ({ id }: { id: string }) => {
         >
           <NumberInput
             placeholder='0%'
-            disabled={!isEdit}
+            disabled={!currentShipmentId}
             enableStepper={false}
             {...register('wholesalePercentage', {
               valueAsNumber: true,

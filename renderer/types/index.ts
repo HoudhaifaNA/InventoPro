@@ -4,6 +4,12 @@ import { Expense, Product } from '../../types';
 interface ProductsWithShipment extends ProductSelect {
   shipments: ShipmentSelect[];
 }
+interface ShipmentWithProducts extends ShipmentSelect {
+  shipmentProducts: Pick<
+    ShipmentToProductSelect,
+    'expenseSlice' | 'productId' | 'quantity' | 'unitPrice' | 'totalPrice'
+  >[];
+}
 
 type QueryValue = string | number | boolean;
 interface QueryParameters {
@@ -38,6 +44,7 @@ export type {
   Expense,
   Product,
   ProductsWithShipment,
+  ShipmentWithProducts,
   ShipmentSelect,
   ShipmentToProductSelect,
 };

@@ -1,32 +1,34 @@
+import clsx from 'clsx';
 import { Badge, Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from '@tremor/react';
 
 import Button from '@/components/Button';
 import Icon from '@/components/Icon';
-import { ShipmentSelect } from 'types';
+import { ShipmentWithProducts } from 'types';
 import formatUIDate from '@/utils/formatUIDate';
+import ProductActions from '../ShipmentActions';
+import formatFiatValue from '@/utils/formatFiatValue';
+import TABLE_HEADER_CELLS from './constants';
+import TableCellSorter from '@/components/TableCellSorter';
+import { useResources } from '@/store';
 
 interface ShipmentsTableProps {
-  shipments: ShipmentSelect[];
+  shipments: ShipmentWithProducts[];
 }
 
 const ShipmentsTable = ({ shipments }: ShipmentsTableProps) => {
+  const { selectItem, shipments: shipmentsRes } = useResources((state) => state);
+
   return (
     <Table className='h-full bg-white pb-8'>
       <TableHead>
         <TableRow>
-          <TableHeaderCell>
-            <input type='checkbox' />
-          </TableHeaderCell>
           <TableHeaderCell>Indice</TableHeaderCell>
-          <TableHeaderCell>ID</TableHeaderCell>
-          <TableHeaderCell>Date d&apos;expédition</TableHeaderCell>
-          <TableHeaderCell>Produits</TableHeaderCell>
-          <TableHeaderCell>Dépenses</TableHeaderCell>
-          <TableHeaderCell>Status</TableHeaderCell>
-          <TableHeaderCell>Date d&apos;arrivée</TableHeaderCell>
+          {TABLE_HEADER_CELLS.map((cell) => {
+            return <TableCellSorter {...cell} resource='shipments' key={cell.field} />;
+          })}
           <TableHeaderCell>
-            <Button variant='light'>
-              <Icon icon='more_horiz' className='h-5 w-5' />
+            <Button variant='light' squared>
+              <Icon icon='delete' className='h-5 w-5' />
             </Button>
           </TableHeaderCell>
         </TableRow>
@@ -34,26 +36,34 @@ const ShipmentsTable = ({ shipments }: ShipmentsTableProps) => {
       <TableBody>
         {shipments.map((shipment, ind) => {
           const { id, shipmentDate, arrivalDate, total, productsCount, shipmentCode } = shipment;
+          const isSelected = shipmentsRes.selectedItems.indexOf(id) !== -1;
+
           return (
-            <TableRow key={id}>
-              <TableCell>
-                <input type='checkbox' />
-              </TableCell>
+            <TableRow
+              className={clsx('transition-colors', isSelected ? 'bg-indigo-700 text-white' : '')}
+              key={id}
+              onClick={(e) => {
+                e.preventDefault();
+                if (e.ctrlKey) {
+                  selectItem('shipments', id);
+                }
+              }}
+            >
               <TableCell>{ind + 1} </TableCell>
               <TableCell>{shipmentCode || '--'}</TableCell>
               <TableCell>{formatUIDate(shipmentDate)}</TableCell>
               <TableCell>{productsCount}</TableCell>
-              <TableCell>{total}.00 DA</TableCell>
+              <TableCell>{formatFiatValue(total)}</TableCell>
               <TableCell>
-                <Badge size='xs'>
-                  <span className='text-xs'>{arrivalDate ? 'Arrived' : 'In way'}</span>
+                <Badge size='xs' className={clsx(arrivalDate ? 'bg-green-200' : 'bg-orange-200')}>
+                  <span className={clsx('text-xs', arrivalDate ? 'text-green-600' : 'text-orange-600')}>
+                    {arrivalDate ? 'Arrivé' : 'En route'}
+                  </span>
                 </Badge>
               </TableCell>
               <TableCell>{formatUIDate(arrivalDate)}</TableCell>
               <TableCell>
-                <Button variant='light'>
-                  <Icon icon='more_horiz' className='h-5 w-5' />
-                </Button>
+                <ProductActions shipment={shipment} />
               </TableCell>
             </TableRow>
           );

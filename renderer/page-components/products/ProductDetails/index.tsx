@@ -3,6 +3,7 @@ import Button from '@/components/Button';
 import ProductShipments from './ProductShipments';
 import { ProductsWithShipment } from '@/types';
 import ProductActions from '../ProductActions';
+import formatFiatValue from '@/utils/formatFiatValue';
 
 interface ProductDetailItemProps {
   label: string;
@@ -32,8 +33,8 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
         <ProductDetailItem label='entreprise' value={company || '--'} />
         <ProductDetailItem label='expéditions' value={shipments.length} />
         <ProductDetailItem label='stock' value={stock} />
-        <ProductDetailItem label='prix en détail' value={`${retailPrice}.00 DA`} />
-        <ProductDetailItem label='prix de gros' value={`${wholesalePrice}.00 DA`} />
+        <ProductDetailItem label='prix en détail' value={formatFiatValue(retailPrice)} />
+        <ProductDetailItem label='prix de gros' value={formatFiatValue(wholesalePrice)} />
         <div className='flex gap-2'>
           <Button>Ajouter une expédition</Button>
           <ProductActions product={product} />

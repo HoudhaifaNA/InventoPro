@@ -7,7 +7,7 @@ import Button from '@/components/Button';
 import FormRow from '@/components/FormRow';
 import LabeledInput from '@/components/LabeledInput';
 import cn from '@/utils/cn';
-import { useModals } from '@/store';
+import { useModals, useResources } from '@/store';
 import { ConfirmationalInputs, FormType } from './types';
 import submitForm from './submitForm';
 import revalidatePath from '@/utils/revalidatePath';
@@ -17,24 +17,29 @@ const FORM_ID = 'confirmationalForm';
 interface ConfirmationalFormProps {
   className?: string;
   type: FormType;
-  id: string | number;
+  ids: string | number;
   children: ReactNode;
 }
 
-const ConfirmationalForm = ({ className, type, id, children }: ConfirmationalFormProps) => {
+const ConfirmationalForm = ({ className, type, ids, children }: ConfirmationalFormProps) => {
   const { deleteModal } = useModals();
+  const { products, shipments, resetSelected } = useResources();
   const router = useRouter();
   const { handleSubmit, register, formState } = useForm<ConfirmationalInputs>();
 
   const { errors, isSubmitting } = formState;
 
   const onSubmit: SubmitHandler<ConfirmationalInputs> = async (data) => {
-    const status = await submitForm(data, { id, type });
+    const status = await submitForm(data, { ids, type });
     if (status === 'success') {
       deleteModal(1);
       if (type === 'd-products' || type === 'cancel-sale') {
         revalidatePath(/^\/products/);
+        products.selectedItems.length > 0 && resetSelected('products');
         router.push('/products');
+      } else if (type === 'd-shipments') {
+        revalidatePath(/^\/shipments/);
+        shipments.selectedItems.length > 0 && resetSelected('shipments');
       }
     }
   };

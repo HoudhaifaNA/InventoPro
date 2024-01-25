@@ -9,7 +9,8 @@ import { ADD_SHIPMENT_DEFAULT_VALUES } from './constants';
 import { useModals } from '@/store';
 import submitShipment from './submitShipment';
 import revalidatePath from '@/utils/revalidatePath';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ShipmentWithProducts } from '@/types';
 
 const FORM_ID = 'shipmentForm';
 
@@ -19,12 +20,48 @@ const ShipmentForm = ({ id }: { id: string }) => {
 
   const currModal = modals.find((md) => md.id === id);
   const isEdit = currModal && id === 'EDIT_SHIPMENT';
+  let DEFAULT_VALUES = ADD_SHIPMENT_DEFAULT_VALUES;
+  const additionalData = currModal?.additionalData as ShipmentWithProducts;
+
+  // if (isEdit && additionalData) {
+  //   DEFAULT_VALUES.productsIds = additionalData.shipmentProducts.map((pr) => pr.productId);
+  //   DEFAULT_VALUES.productsBought = additionalData.shipmentProducts.map(
+  //     ({ productId, expenseSlice, quantity, totalPrice }) => {
+  //       return { id: productId, expenseSlice, quantity, totalPrice };
+  //     }
+  //   );
+  //   DEFAULT_VALUES.shipmentDate = new Date(additionalData.shipmentDate);
+  //   DEFAULT_VALUES.shipmentCode = additionalData.shipmentCode || '';
+  //   DEFAULT_VALUES.expenses = additionalData.expenses;
+  //   DEFAULT_VALUES.arrivalDate = additionalData.arrivalDate ? new Date(additionalData.arrivalDate) : undefined;
+  // }
 
   const methods = useForm<ShipmentFormInputs>({ defaultValues: ADD_SHIPMENT_DEFAULT_VALUES });
   const {
+    reset,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
+
+  useEffect(() => {
+    if (isEdit) {
+      // If it's an edit modal, update the default values based on additionalData
+      const additionalData = currModal?.additionalData as ShipmentWithProducts;
+
+      if (additionalData) {
+        reset({
+          productsIds: additionalData.shipmentProducts.map((pr) => pr.productId),
+          productsBought: additionalData.shipmentProducts.map(({ productId, expenseSlice, quantity, totalPrice }) => {
+            return { id: productId, expenseSlice, quantity, totalPrice };
+          }),
+          shipmentDate: new Date(additionalData.shipmentDate),
+          shipmentCode: additionalData.shipmentCode || '',
+          expenses: additionalData.expenses,
+          arrivalDate: additionalData.arrivalDate ? new Date(additionalData.arrivalDate) : undefined,
+        });
+      }
+    }
+  }, [isEdit, currModal, reset]);
 
   const onSubmit: SubmitHandler<ShipmentFormInputs> = async (data) => {
     if (step === 3) {
@@ -57,7 +94,7 @@ const ShipmentForm = ({ id }: { id: string }) => {
           </Button>
         )}
         <Button type='submit' loading={isSubmitting} form={FORM_ID}>
-          {step === 3 ? 'Ajouter' : 'Suivante'}
+          {step === 3 ? (isEdit ? 'Modifier' : 'Ajouter') : 'Suivante'}
         </Button>
       </div>
     </FormProvider>

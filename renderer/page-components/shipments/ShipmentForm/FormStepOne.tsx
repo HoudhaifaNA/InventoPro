@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 import { Controller, useFormContext } from 'react-hook-form';
 import { DatePicker, MultiSelect, MultiSelectItem, TextInput, NumberInput } from '@tremor/react';
@@ -21,9 +21,15 @@ const FormStepOne = () => {
     watch,
     formState: { errors },
   } = useFormContext<ShipmentFormInputs>();
-  const { data } = useSWR<ProductsList>('/products/list', fetcher);
+  const [url, setUrl] = useState<string | null>(null);
+
+  const { data } = useSWR<ProductsList>(url, fetcher);
 
   const [productsIds, productsBought] = watch(['productsIds', 'productsBought']);
+
+  useEffect(() => {
+    setUrl('/products/list');
+  }, []);
 
   useEffect(() => {
     const filteredProducts = productsBought.filter((pB) => productsIds.indexOf(pB.id) !== -1);
