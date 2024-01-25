@@ -7,20 +7,25 @@ import AppError from '../utils/AppError';
 import formatDateTime from '../utils/formatDateTime';
 import { calculateExpensesTotal, calculateShipmentTotal } from '../utils/calculations';
 import { isValidExpenses, isValidProducts } from '../../types';
+import { sortResults } from '../utils/APIFeatures';
 
-export const getShipments = catchAsync(async (_req, res) => {
-  const shipments = await db.query.shipments.findMany({
+export const getShipments = catchAsync(async (req, res) => {
+  const { orderBy } = req.query;
+  const shipmentsList = await db.query.shipments.findMany({
+    orderBy: sortResults(orderBy, shipments),
     with: {
-      products: {
+      shipmentProducts: {
         columns: {
-          productId: false,
+          productId: true,
           shipmentId: false,
+          quantity: true,
+          expenseSlice: true,
+          totalPrice: true,
         },
 
         with: {
           products: {
             columns: {
-              id: true,
               retailPrice: true,
               wholesalePrice: true,
             },
@@ -29,7 +34,7 @@ export const getShipments = catchAsync(async (_req, res) => {
       },
     },
   });
-  return res.status(200).json({ results: shipments.length, shipments });
+  return res.status(200).json({ results: shipmentsList.length, shipments: shipmentsList });
 });
 
 export const getProductShipments = catchAsync(async (req, res) => {

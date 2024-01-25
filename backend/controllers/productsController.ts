@@ -59,13 +59,13 @@ export const getAllProducts = catchAsync(async (req, res) => {
   const { page, orderBy } = req.query;
 
   const pageNumber = typeof page === 'string' && !isNaN(parseInt(page)) ? parseInt(page) : 1;
-  const limit = req.query.limit ? Number(req.query.limit) : 2;
+  const limit = req.query.limit ? Number(req.query.limit) : 100;
 
   const offset = limit * pageNumber - limit;
   const allProducts = await db.query.products.findMany({ where: generateFilter(req) });
 
   const productsList = await db.query.products.findMany({
-    orderBy: sortResults(orderBy),
+    orderBy: sortResults(orderBy, products),
     where: generateFilter(req),
     limit,
     offset,

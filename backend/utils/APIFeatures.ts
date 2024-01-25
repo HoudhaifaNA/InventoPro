@@ -1,15 +1,15 @@
 import { Request } from 'express';
 import { like, eq, between, and, getOrderByOperators } from 'drizzle-orm';
 
-import { products } from '../../db/schema';
+import { products, sales, shipments } from '../../db/schema';
 
-enum ORDER_BY {
-  NAME = 'name',
-  UPDATED_AT = 'updatedAt',
-  STOCK = 'stock',
-  RETAIL_PRICE = 'retailPrice',
-  WHOLESALE_PRICE = 'wholesalePrice',
-}
+// enum ORDER_BY {
+//   NAME = 'name',
+//   UPDATED_AT = 'updatedAt',
+//   STOCK = 'stock',
+//   RETAIL_PRICE = 'retailPrice',
+//   WHOLESALE_PRICE = 'wholesalePrice',
+// }
 
 const parseRange = (value: string): number[] => {
   const rangeArr = [0, Infinity];
@@ -26,11 +26,11 @@ const getStockQuery = (stock: string | null) => {
   return stockArr.length === 2 ? stockArr : undefined;
 };
 
-const isOrderBy = (orderByValue: string | null): orderByValue is ORDER_BY => {
-  return Object.values(ORDER_BY).includes(orderByValue as any);
-};
+// const isOrderBy = (orderByValue: string | null): orderByValue is ORDER_BY => {
+//   return Object.values(ORDER_BY).includes(orderByValue as any);
+// };
 
-export const sortResults = (param: any) => {
+export const sortResults = (param: any, resource: typeof products | typeof shipments | typeof sales) => {
   const operations = getOrderByOperators();
   let orderByParam: string = '';
   let order: 'asc' | 'desc' = 'asc';
@@ -40,7 +40,7 @@ export const sortResults = (param: any) => {
     order = param.startsWith('-') ? 'desc' : 'asc';
   }
 
-  return isOrderBy(orderByParam) ? [operations[order](products[orderByParam])] : [operations.desc(products.createdAt)];
+  return orderByParam.length > 0 ? [operations[order](resource[orderByParam])] : [operations.desc(resource.createdAt)];
 };
 
 export const generateFilter = (req: Request) => {

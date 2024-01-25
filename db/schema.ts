@@ -49,7 +49,7 @@ export const shipments = sqliteTable('shipments', {
 });
 
 export const shipmentsRelations = relations(shipments, ({ many }) => ({
-  products: many(shipmentsToProducts),
+  shipmentProducts: many(shipmentsToProducts),
 }));
 
 export const shipmentsToProducts = sqliteTable(
