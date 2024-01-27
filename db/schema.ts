@@ -23,7 +23,7 @@ export const products = sqliteTable('products', {
 });
 
 export const productsRelations = relations(products, ({ one, many }) => ({
-  shipments: many(shipmentsToProducts),
+  productShipments: many(shipmentsToProducts),
   currentShipment: one(shipments, {
     fields: [products.currentShipmentId],
     references: [shipments.id],
@@ -72,11 +72,11 @@ export const shipmentsToProducts = sqliteTable(
 );
 
 export const shipmentsToProductsRelations = relations(shipmentsToProducts, ({ one }) => ({
-  products: one(products, {
+  product: one(products, {
     fields: [shipmentsToProducts.productId],
     references: [products.id],
   }),
-  shipments: one(shipments, {
+  shipment: one(shipments, {
     fields: [shipmentsToProducts.shipmentId],
     references: [shipments.id],
   }),

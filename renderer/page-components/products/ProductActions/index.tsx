@@ -49,7 +49,7 @@ const ProductActions = ({ product, multipleDisplay }: ProductActionsProps) => {
       <DropdownMenuTrigger className='outline-none'>
         <div>
           <Button variant='light' className='w-full' squared={!isGridDisplay}>
-            {isGridDisplay ? 'More' : <Icon icon='more_horiz' className='h-5 w-5' />}
+            {isGridDisplay ? 'Plus' : <Icon icon='more_horiz' className='h-5 w-5' />}
           </Button>
         </div>
       </DropdownMenuTrigger>

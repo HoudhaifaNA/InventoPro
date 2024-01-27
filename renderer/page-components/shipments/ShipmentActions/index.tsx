@@ -12,7 +12,7 @@ interface ProductActionsProps {
   shipment: ShipmentWithProducts;
 }
 
-const ProductActions = ({ shipment }: ProductActionsProps) => {
+const ShipmentActions = ({ shipment }: ProductActionsProps) => {
   const { addModal } = useModals((state) => state);
 
   const DeleteShipmentModal = () => {
@@ -67,4 +67,4 @@ const ProductActions = ({ shipment }: ProductActionsProps) => {
   );
 };
 
-export default ProductActions;
+export default ShipmentActions;

@@ -5,7 +5,7 @@ import Button from '@/components/Button';
 import Icon from '@/components/Icon';
 import { ShipmentWithProducts } from 'types';
 import formatUIDate from '@/utils/formatUIDate';
-import ProductActions from '../ShipmentActions';
+import ShipmentActions from '../ShipmentActions';
 import formatFiatValue from '@/utils/formatFiatValue';
 import TABLE_HEADER_CELLS from './constants';
 import TableCellSorter from '@/components/TableCellSorter';
@@ -83,7 +83,7 @@ const ShipmentsTable = ({ shipments }: ShipmentsTableProps) => {
               </TableCell>
               <TableCell>{formatUIDate(arrivalDate)}</TableCell>
               <TableCell>
-                <ProductActions shipment={shipment} />
+                <ShipmentActions shipment={shipment} />
               </TableCell>
             </TableRow>
           );

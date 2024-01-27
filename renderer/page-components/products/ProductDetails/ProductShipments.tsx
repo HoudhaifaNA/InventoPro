@@ -1,25 +1,26 @@
-import Link from 'next/link';
-
+import ShipmentActions from '@/page-components/shipments/ShipmentActions';
 import { ProductsWithShipment } from '@/types';
+import formatUIDate from '@/utils/formatUIDate';
 
-interface ProductShipmentsProps extends Pick<ProductsWithShipment, 'shipments'> {}
+interface ProductShipmentsProps {
+  productShipments: ProductsWithShipment['productShipments'];
+}
 
-const ProductShipments = ({ shipments }: ProductShipmentsProps) => {
+const ProductShipments = ({ productShipments }: ProductShipmentsProps) => {
   return (
     <div className='h-full w-full flex-1 space-y-2 overflow-y-auto'>
-      {shipments.map(({ shipmentDate }, ind) => {
+      {/* {productShipments.map((productShipment, ind) => {
         return (
           <div
             className='flex items-center justify-between rounded bg-indigo-50 p-4 text-sm font-semibold text-indigo-950'
             key={ind}
           >
-            <Link href='/'>
-              <span className='border-b border-dashed border-indigo-950'>Tranche {ind + 1}</span>
-            </Link>
-            <span>{shipmentDate}</span>
+            <span>{shipmentCode || '--'}</span>
+            <span>{formatUIDate(shipmentDate)}</span>
+            <ShipmentActions shipment={{ ...shipment, shipmentProducts: [rest] }} />
           </div>
         );
-      })}
+      })} */}
     </div>
   );
 };

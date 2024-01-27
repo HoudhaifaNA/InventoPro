@@ -1,8 +1,12 @@
 import { ProductSelect, SaleSelect, ShipmentSelect, ShipmentToProductSelect } from '../../db/schema';
 import { Expense, Product } from '../../types';
 
+type productShipment = Pick<ShipmentToProductSelect, 'unitPrice' | 'quantity' | 'shipmentId'> & {
+  shipment: ShipmentSelect;
+};
+
 interface ProductsWithShipment extends ProductSelect {
-  shipments: ShipmentSelect[];
+  productShipments: productShipment[];
 }
 
 interface ShipmentWithProducts extends ShipmentSelect {

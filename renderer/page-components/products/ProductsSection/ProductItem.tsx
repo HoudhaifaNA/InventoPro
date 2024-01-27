@@ -18,7 +18,8 @@ const ProductItem = (props: ProductItemProps) => {
   const { selectItem, products } = useResources((state) => state);
   const { stockThreshold } = useSavedData();
   const { display, ...product } = props;
-  const { id, name, reference, thumbnail, category, shipments, company, stock, retailPrice, wholesalePrice } = product;
+  const { id, name, reference, thumbnail, category, productShipments, company, stock, retailPrice, wholesalePrice } =
+    product;
   const imageSrc = thumbnail ? `http://localhost:5500/api/attachments/${thumbnail}` : '/no-image.jpg';
   const isGridDisplay = display === 'grid';
   const isSelected = products.selectedItems.indexOf(id) !== -1;
@@ -57,7 +58,7 @@ const ProductItem = (props: ProductItemProps) => {
           <BulletSperator />
           <span className='font-semibold text-neutral-500'>{company || '--'}</span>
           <BulletSperator />
-          <span>{shipments.length} tranches</span>
+          <span>{productShipments.length} tranches</span>
           <BulletSperator />
           <b>{stock} en stock</b>
           {stock < stockThreshold && (

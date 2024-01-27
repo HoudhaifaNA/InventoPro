@@ -24,7 +24,7 @@ export const getShipments = catchAsync(async (req, res) => {
         },
 
         with: {
-          products: {
+          product: {
             columns: {
               retailPrice: true,
               wholesalePrice: true,
@@ -45,7 +45,7 @@ export const getProductShipments = catchAsync(async (req, res) => {
       unitPrice: true,
     },
     with: {
-      shipments: {
+      shipment: {
         columns: {
           id: true,
           shipmentDate: true,

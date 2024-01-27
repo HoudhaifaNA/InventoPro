@@ -32,21 +32,12 @@ const queryProduct = async (id: string) => {
   const product = await db.query.products.findFirst({
     where: eq(products.id, id),
     with: {
-      shipments: {
+      productShipments: {
         columns: {
           productId: false,
-          quantity: false,
+          quantity: true,
           shipmentId: true,
           unitPrice: true,
-        },
-
-        with: {
-          shipments: {
-            columns: {
-              shipmentCode: true,
-              arrivalDate: true,
-            },
-          },
         },
       },
     },
@@ -70,21 +61,12 @@ export const getAllProducts = catchAsync(async (req, res) => {
     limit,
     offset,
     with: {
-      shipments: {
+      productShipments: {
         columns: {
           productId: false,
           shipmentId: true,
           unitPrice: true,
           quantity: true,
-        },
-
-        with: {
-          shipments: {
-            columns: {
-              shipmentCode: true,
-              arrivalDate: true,
-            },
-          },
         },
       },
     },
@@ -193,7 +175,7 @@ export const updateProduct = catchAsync(async (req, res, next) => {
 
     if (currentShipmentId === 'undefined') shipmentId = null;
 
-    const shipmentIndex = product?.shipments.findIndex((shipment) => shipment.shipmentId === shipmentId);
+    const shipmentIndex = product?.productShipments.findIndex((shipment) => shipment.shipmentId === shipmentId);
 
     if (shipmentId && shipmentIndex === -1) {
       return next(new AppError('Invalid shipment', 401));
