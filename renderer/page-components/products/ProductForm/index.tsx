@@ -21,7 +21,7 @@ import ShipmentForm from '@/page-components/shipments/ShipmentForm';
 const FORM_ID = 'addProductForm';
 
 interface ShipmentDetails {
-  shipments: Pick<ShipmentSelect, 'id' | 'shipmentDate' | 'shipmentCode'>;
+  shipment: Pick<ShipmentSelect, 'id' | 'shipmentDate' | 'shipmentCode'>;
 }
 interface GetProductShipments {
   shipments: (Pick<ShipmentToProductSelect, 'unitPrice'> & ShipmentDetails)[];
@@ -76,7 +76,7 @@ const AddProductForm = ({ id }: { id: string }) => {
 
   useEffect(() => {
     if (currentShipmentId) {
-      const currShipment = data?.shipments.find((shipment) => shipment.shipments.id === currentShipmentId);
+      const currShipment = data?.shipments.find(({ shipment }) => shipment.id === currentShipmentId);
       if (currShipment) {
         setValue('unitPrice', currShipment.unitPrice);
       }
@@ -217,8 +217,8 @@ const AddProductForm = ({ id }: { id: string }) => {
                     Ajouter une expédition
                   </Button>
                   {data?.shipments &&
-                    data.shipments.map(({ shipments }) => {
-                      const { id, shipmentCode, shipmentDate } = shipments;
+                    data.shipments.map(({ shipment }) => {
+                      const { id, shipmentCode, shipmentDate } = shipment;
                       return (
                         <SearchSelectItem value={id} key={id}>
                           <span>{shipmentCode || '--'}</span>

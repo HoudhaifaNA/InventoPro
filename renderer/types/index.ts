@@ -32,6 +32,39 @@ interface GetStock {
   stock: ProductStock[];
 }
 
+interface ProductMonthlyStats {
+  month: string;
+  purchases: number;
+  sales: number;
+}
+interface ProductSalesStats {
+  name: string;
+  salesCount: number;
+}
+
+interface GetStats {
+  productsBought: {
+    count: number;
+    quantity: number | null;
+    total: number | null;
+  };
+  totalSales: {
+    count: number;
+    quantity: number | null;
+    total: number | null;
+  };
+  totalExpenses: {
+    count: number;
+    total: number | null;
+  };
+  totalShipments: {
+    count: number;
+    total: number | null;
+  };
+  productsStatsPerMonth: ProductMonthlyStats[];
+  topFiveProducts: ProductSalesStats[];
+}
+
 type QueryValue = string | number | boolean;
 interface QueryParameters {
   [key: string]: QueryValue;
@@ -63,6 +96,7 @@ export type {
   QueryItem,
   IModal,
   Expense,
+  GetStats,
   Product,
   ProductsWithShipment,
   ProductStock,

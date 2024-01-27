@@ -1,9 +1,7 @@
 const formatFiatValue = (amount: number = 0) => {
   let fiatValue = amount;
 
-  const formattedValue = fiatValue.toFixed(2);
-
-  const fiatText = `${formattedValue} DA`;
+  const fiatText = `${fiatValue.toLocaleString()} DA`;
 
   return fiatText;
 };
