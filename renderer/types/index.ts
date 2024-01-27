@@ -16,6 +16,18 @@ interface SalesWithProduct extends SaleSelect {
   product: Pick<ProductSelect, 'name' | 'reference'>;
 }
 
+interface ProductStock {
+  id: string;
+  name: string;
+  reference: string;
+  bought: number;
+  sold: number;
+  stock: number;
+}
+interface GetStock {
+  stock: ProductStock[];
+}
+
 type QueryValue = string | number | boolean;
 interface QueryParameters {
   [key: string]: QueryValue;
@@ -49,6 +61,8 @@ export type {
   Expense,
   Product,
   ProductsWithShipment,
+  ProductStock,
+  GetStock,
   ShipmentWithProducts,
   SalesWithProduct,
   ShipmentSelect,

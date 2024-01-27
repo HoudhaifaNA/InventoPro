@@ -3,14 +3,6 @@ import { like, eq, between, and, getOrderByOperators } from 'drizzle-orm';
 
 import { products, sales, shipments } from '../../db/schema';
 
-// enum ORDER_BY {
-//   NAME = 'name',
-//   UPDATED_AT = 'updatedAt',
-//   STOCK = 'stock',
-//   RETAIL_PRICE = 'retailPrice',
-//   WHOLESALE_PRICE = 'wholesalePrice',
-// }
-
 const parseRange = (value: string): number[] => {
   const rangeArr = [0, Infinity];
   value.split('_').forEach((range, ind) => {
@@ -25,10 +17,6 @@ const getStockQuery = (stock: string | null) => {
 
   return stockArr.length === 2 ? stockArr : undefined;
 };
-
-// const isOrderBy = (orderByValue: string | null): orderByValue is ORDER_BY => {
-//   return Object.values(ORDER_BY).includes(orderByValue as any);
-// };
 
 export const sortResults = (param: any, resource: typeof products | typeof shipments | typeof sales) => {
   const operations = getOrderByOperators();
