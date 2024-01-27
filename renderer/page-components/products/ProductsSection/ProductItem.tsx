@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import ProductActions from '../ProductActions';
 import { ProductsWithShipment } from '@/types';
 import formatFiatValue from '@/utils/formatFiatValue';
-import { useResources } from '@/store';
+import { useResources, useSavedData } from '@/store';
 
 interface ProductItemProps extends ProductsWithShipment {
   display: 'grid' | 'list';
@@ -16,7 +16,7 @@ const BulletSperator = () => <div className='h-1 w-1 rounded bg-black' />;
 
 const ProductItem = (props: ProductItemProps) => {
   const { selectItem, products } = useResources((state) => state);
-
+  const { stockThreshold } = useSavedData();
   const { display, ...product } = props;
   const { id, name, reference, thumbnail, category, shipments, company, stock, retailPrice, wholesalePrice } = product;
   const imageSrc = thumbnail ? `http://localhost:5500/api/attachments/${thumbnail}` : '/no-image.jpg';
@@ -60,7 +60,7 @@ const ProductItem = (props: ProductItemProps) => {
           <span>{shipments.length} tranches</span>
           <BulletSperator />
           <b>{stock} en stock</b>
-          {stock < 30 && (
+          {stock < stockThreshold && (
             <>
               <BulletSperator />
               <Badge

@@ -8,7 +8,7 @@ import { useResources, useSavedData } from '@/store';
 const Filter = () => {
   const [prevOrderBy, setOrderBy] = useState('updatedAt');
   const { addQuery, deleteQuery, products } = useResources((state) => state);
-  const { categories, companies } = useSavedData((state) => state);
+  const { categories, companies, stockThreshold } = useSavedData((state) => state);
 
   const addOrderByFilter = (orderBy) => {
     const orderByQuery = prevOrderBy === orderBy ? `-${orderBy}` : orderBy;
@@ -75,9 +75,9 @@ const Filter = () => {
             defaultValue=''
             onValueChange={(stockRange) => filter('stock', stockRange)}
           >
-            <SelectItem value='40_'>Stock élevé</SelectItem>
-            <SelectItem value='10_40'>Stock faible</SelectItem>
-            <SelectItem value='_9'>En rupture de stock</SelectItem>
+            <SelectItem value={`${stockThreshold}_`}>Stock élevé</SelectItem>
+            <SelectItem value={`1_${stockThreshold}`}>Stock faible</SelectItem>
+            <SelectItem value='_0'>En rupture de stock</SelectItem>
           </Select>
         </LabeledInput>
         <NumberRangeInput

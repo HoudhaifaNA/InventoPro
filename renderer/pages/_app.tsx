@@ -5,9 +5,8 @@ import NextNProgress from 'nextjs-progressbar';
 import { ToastContainer } from 'react-toastify';
 
 import 'react-toastify/dist/ReactToastify.css';
-import '../styles/globals.css';
-import Navbar from '@/layout/Navbar';
-import ModalsManager from '@/layout/ModalsManager';
+import '@/styles/globals.css';
+import ApplicationLayout from '@/layout/layout';
 
 const poppins = Poppins({
   src: [
@@ -36,11 +35,9 @@ function MyApp({ Component, pageProps }: AppProps) {
       {currentPath.includes('/login') ? (
         <Component {...pageProps} />
       ) : (
-        <div className='page-wrapper h-screen '>
-          <Navbar />
-          <ModalsManager />
+        <ApplicationLayout>
           <Component {...pageProps} />
-        </div>
+        </ApplicationLayout>
       )}
     </main>
   );
