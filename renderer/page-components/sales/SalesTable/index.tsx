@@ -3,58 +3,59 @@ import { Badge, Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRo
 
 import Button from '@/components/Button';
 import Icon from '@/components/Icon';
-import { ShipmentWithProducts } from 'types';
+import { SalesWithProduct } from 'types';
 import formatUIDate from '@/utils/formatUIDate';
-import ProductActions from '../ShipmentActions';
+import SalesActions from '../SalesActions';
 import formatFiatValue from '@/utils/formatFiatValue';
 import TABLE_HEADER_CELLS from './constants';
 import TableCellSorter from '@/components/TableCellSorter';
 import { useModals, useResources } from '@/store';
 import ConfirmationalForm from '@/components/ConfirmationalForm';
 
-interface ShipmentsTableProps {
-  shipments: ShipmentWithProducts[];
+interface SalesTableProps {
+  sales: SalesWithProduct[];
 }
 
-const ShipmentsTable = ({ shipments }: ShipmentsTableProps) => {
-  const { selectItem, shipments: shipmentsRes } = useResources((state) => state);
+const SalesTable = ({ sales }: SalesTableProps) => {
   const { addModal } = useModals((state) => state);
+  const { selectItem, sales: salesRes } = useResources((state) => state);
 
-  const DeleteShipmentsModal = () => {
+  const DeleteSalesModal = () => {
     return (
-      <ConfirmationalForm type='d-shipments' ids={shipmentsRes.selectedItems.join(',')}>
-        Êtes-vous sûr de vouloir supprimer <b> {shipmentsRes.selectedItems.length} expéditions</b> ?
+      <ConfirmationalForm type='cancel-sale' ids={salesRes.selectedItems.join(',')}>
+        Êtes-vous sûr de vouloir annuler <b> {salesRes.selectedItems.length} ventes</b> ?
       </ConfirmationalForm>
     );
   };
 
-  const onDeleteModal = () => {
+  const onCancelModal = () => {
     addModal({
-      id: 'DELETE_PRODUCT',
-      title: 'Supprimer des expéditions',
-      children: DeleteShipmentsModal,
+      id: 'CANCEL_SALE',
+      title: 'Supprimer des ventes',
+      children: DeleteSalesModal,
     });
   };
-
   return (
     <Table className='h-full bg-white pb-8'>
       <TableHead>
         <TableRow>
           <TableHeaderCell>Indice</TableHeaderCell>
+          <TableHeaderCell>Produit</TableHeaderCell>
+          <TableHeaderCell>Référence</TableHeaderCell>
           {TABLE_HEADER_CELLS.map((cell) => {
-            return <TableCellSorter {...cell} resource='shipments' key={cell.title} />;
+            return <TableCellSorter {...cell} resource='sales' key={cell.field} />;
           })}
           <TableHeaderCell>
-            <Button variant='light' squared onClick={onDeleteModal}>
+            <Button variant='light' squared onClick={onCancelModal}>
               <Icon icon='delete' className='h-5 w-5' />
             </Button>
           </TableHeaderCell>
         </TableRow>
       </TableHead>
       <TableBody>
-        {shipments.map((shipment, ind) => {
-          const { id, shipmentDate, arrivalDate, total, productsCount, shipmentCode } = shipment;
-          const isSelected = shipmentsRes.selectedItems.indexOf(id) !== -1;
+        {sales.map((sale, ind) => {
+          const { id, price, quantity, type, soldAt, total, product } = sale;
+          const isSelected = salesRes.selectedItems.indexOf(id) !== -1;
 
           return (
             <TableRow
@@ -63,25 +64,26 @@ const ShipmentsTable = ({ shipments }: ShipmentsTableProps) => {
               onClick={(e) => {
                 e.preventDefault();
                 if (e.ctrlKey) {
-                  selectItem('shipments', id);
+                  selectItem('sales', id);
                 }
               }}
             >
               <TableCell>{ind + 1} </TableCell>
-              <TableCell>{shipmentCode || '--'}</TableCell>
-              <TableCell>{formatUIDate(shipmentDate)}</TableCell>
-              <TableCell>{productsCount}</TableCell>
+              <TableCell>{product.name}</TableCell>
+              <TableCell>{product.reference || '--'}</TableCell>
+              <TableCell>{quantity}</TableCell>
+              <TableCell>{formatFiatValue(price)}</TableCell>
               <TableCell>{formatFiatValue(total)}</TableCell>
               <TableCell>
-                <Badge size='xs' className={clsx(arrivalDate ? 'bg-green-200' : 'bg-orange-200')}>
-                  <span className={clsx('text-xs', arrivalDate ? 'text-green-600' : 'text-orange-600')}>
-                    {arrivalDate ? 'Arrivé' : 'En route'}
+                <Badge size='xs' className={clsx(type === 'retail' ? 'bg-green-200' : 'bg-orange-200')}>
+                  <span className={clsx('text-xs', type === 'retail' ? 'text-green-600' : 'text-orange-600')}>
+                    {type === 'retail' ? 'Details' : 'Gros'}
                   </span>
                 </Badge>
               </TableCell>
-              <TableCell>{formatUIDate(arrivalDate)}</TableCell>
+              <TableCell>{formatUIDate(soldAt)}</TableCell>
               <TableCell>
-                <ProductActions shipment={shipment} />
+                <SalesActions sale={sale} />
               </TableCell>
             </TableRow>
           );
@@ -91,4 +93,4 @@ const ShipmentsTable = ({ shipments }: ShipmentsTableProps) => {
   );
 };
 
-export default ShipmentsTable;
+export default SalesTable;

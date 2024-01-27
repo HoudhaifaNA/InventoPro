@@ -20,21 +20,6 @@ const ShipmentForm = ({ id }: { id: string }) => {
 
   const currModal = modals.find((md) => md.id === id);
   const isEdit = currModal && id === 'EDIT_SHIPMENT';
-  let DEFAULT_VALUES = ADD_SHIPMENT_DEFAULT_VALUES;
-  const additionalData = currModal?.additionalData as ShipmentWithProducts;
-
-  // if (isEdit && additionalData) {
-  //   DEFAULT_VALUES.productsIds = additionalData.shipmentProducts.map((pr) => pr.productId);
-  //   DEFAULT_VALUES.productsBought = additionalData.shipmentProducts.map(
-  //     ({ productId, expenseSlice, quantity, totalPrice }) => {
-  //       return { id: productId, expenseSlice, quantity, totalPrice };
-  //     }
-  //   );
-  //   DEFAULT_VALUES.shipmentDate = new Date(additionalData.shipmentDate);
-  //   DEFAULT_VALUES.shipmentCode = additionalData.shipmentCode || '';
-  //   DEFAULT_VALUES.expenses = additionalData.expenses;
-  //   DEFAULT_VALUES.arrivalDate = additionalData.arrivalDate ? new Date(additionalData.arrivalDate) : undefined;
-  // }
 
   const methods = useForm<ShipmentFormInputs>({ defaultValues: ADD_SHIPMENT_DEFAULT_VALUES });
   const {

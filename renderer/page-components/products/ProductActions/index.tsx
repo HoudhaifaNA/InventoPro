@@ -1,3 +1,5 @@
+import { nanoid } from 'nanoid';
+
 import Button from '@/components/Button';
 import Icon from '@/components/Icon';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/Dropdown';
@@ -5,6 +7,7 @@ import { useDisplay, useModals } from '@/store';
 import AddProductForm from '../ProductForm';
 import { ProductsWithShipment } from '@/types';
 import ConfirmationalForm from '@/components/ConfirmationalForm';
+import SaleForm from '@/page-components/sales/SaleForm';
 
 interface ProductActionsProps {
   multipleDisplay?: boolean;
@@ -29,6 +32,10 @@ const ProductActions = ({ product, multipleDisplay }: ProductActionsProps) => {
     addModal({ id: 'EDIT_PRODUCT', title: 'Modifier un produit', children: AddProductForm, additionalData: product });
   };
 
+  const onSaleModal = () => {
+    addModal({ id: nanoid(), title: 'Vendre un produit', children: SaleForm, additionalData: product });
+  };
+
   const onDeleteModal = () => {
     addModal({
       id: 'DELETE_PRODUCT',
@@ -47,6 +54,10 @@ const ProductActions = ({ product, multipleDisplay }: ProductActionsProps) => {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className='bg-white'>
+        <DropdownMenuItem className='flex items-center gap-2 hover:bg-neutral-50' onClick={onSaleModal}>
+          <Icon icon='sales' className='h-4 w-4' />
+          Vendre
+        </DropdownMenuItem>
         <DropdownMenuItem className='flex items-center gap-2 hover:bg-neutral-50' onClick={onEditModal}>
           <Icon icon='edit' className='h-4 w-4' />
           Modifier

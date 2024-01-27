@@ -10,7 +10,6 @@ import { fetcher } from '@/utils/API';
 import { ShipmentWithProducts } from 'types';
 import ErrorMessage from '@/components/ErrorMessage';
 import Loading from '@/components/Loading';
-import ConfirmationalForm from '@/components/ConfirmationalForm';
 
 interface GetShipments {
   results: number;
@@ -23,26 +22,11 @@ const ShipmentsPage = () => {
   const { data, isLoading, error } = useSWR<GetShipments>(shipments.fetchedUrl, fetcher);
 
   const onAddModal = () => addModal({ id: nanoid(), title: 'Ajouter une expédition', children: ShipmentForm });
+
   useEffect(() => {
     if (data) setResults('shipments', data.results);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
-
-  const DeleteShipmentsModal = () => {
-    return (
-      <ConfirmationalForm type='d-shipments' ids={shipments.selectedItems.join(',')}>
-        Êtes-vous sûr de vouloir supprimer <b> {shipments.selectedItems.length} expéditions</b> ?
-      </ConfirmationalForm>
-    );
-  };
-
-  const onDeleteModal = () => {
-    addModal({
-      id: 'DELETE_PRODUCT',
-      title: 'Supprimer des expéditions',
-      children: DeleteShipmentsModal,
-    });
-  };
 
   const handleSelectAll = () => {
     if (data?.shipments) {
@@ -68,16 +52,9 @@ const ShipmentsPage = () => {
         <Button onClick={onAddModal}>Ajouter une expédition</Button>
       </div>
       {shipments.selectedItems.length > 0 && (
-        <div className='flex items-center justify-between'>
+        <div className='flex items-center gap-4'>
+          <Button onClick={handleSelectAll}>Sélectionnez tout</Button>
           <span className='text-sm font-semibold'>{shipments.selectedItems.length} sélectionnez</span>
-          <div className='flex gap-2'>
-            <Button variant='light' onClick={handleSelectAll}>
-              Sélectionnez tout
-            </Button>
-            <Button className='bg-red-600' onClick={onDeleteModal}>
-              Supprimer
-            </Button>
-          </div>
         </div>
       )}
       {renderContent()}

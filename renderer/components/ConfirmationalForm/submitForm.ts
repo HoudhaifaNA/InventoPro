@@ -18,10 +18,12 @@ const submitForm = async (data: ConfirmationalInputs, { type, ids }: Config): Pr
     url = `/products/${ids}`;
   } else if (type === 'd-shipments') {
     url = `/shipments/${ids}`;
+  } else if (type === 'cancel-sale') {
+    url = `/sales/${ids}`;
   }
 
   try {
-    const res = await API.delete(url, { data });
+    await API.delete(url, { data });
     notify('success', 'Success');
   } catch (err) {
     console.log(err);

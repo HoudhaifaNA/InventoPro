@@ -22,10 +22,10 @@ interface ConfirmationalFormProps {
 }
 
 const ConfirmationalForm = ({ className, type, ids, children }: ConfirmationalFormProps) => {
-  const { deleteModal } = useModals();
-  const { products, shipments, resetSelected } = useResources();
   const router = useRouter();
   const { handleSubmit, register, formState } = useForm<ConfirmationalInputs>();
+  const { deleteModal } = useModals();
+  const { products, shipments, sales, resetSelected } = useResources();
 
   const { errors, isSubmitting } = formState;
 
@@ -33,13 +33,16 @@ const ConfirmationalForm = ({ className, type, ids, children }: ConfirmationalFo
     const status = await submitForm(data, { ids, type });
     if (status === 'success') {
       deleteModal(1);
-      if (type === 'd-products' || type === 'cancel-sale') {
+      if (type === 'd-products') {
         revalidatePath(/^\/products/);
         products.selectedItems.length > 0 && resetSelected('products');
         router.push('/products');
       } else if (type === 'd-shipments') {
         revalidatePath(/^\/shipments/);
         shipments.selectedItems.length > 0 && resetSelected('shipments');
+      } else if (type === 'cancel-sale') {
+        revalidatePath(/^\/sales/);
+        sales.selectedItems.length > 0 && resetSelected('sales');
       }
     }
   };

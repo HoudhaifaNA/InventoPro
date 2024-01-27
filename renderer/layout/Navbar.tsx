@@ -22,6 +22,11 @@ const LINKS = [
     icon: 'shipment',
   },
   {
+    link: '/sales',
+    title: 'Ventes',
+    icon: 'sales',
+  },
+  {
     link: '/stock',
     title: 'stock',
     icon: 'stock',

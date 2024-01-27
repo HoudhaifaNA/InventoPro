@@ -1,14 +1,19 @@
-import { ProductSelect, ShipmentSelect, ShipmentToProductSelect } from '../../db/schema';
+import { ProductSelect, SaleSelect, ShipmentSelect, ShipmentToProductSelect } from '../../db/schema';
 import { Expense, Product } from '../../types';
 
 interface ProductsWithShipment extends ProductSelect {
   shipments: ShipmentSelect[];
 }
+
 interface ShipmentWithProducts extends ShipmentSelect {
   shipmentProducts: Pick<
     ShipmentToProductSelect,
     'expenseSlice' | 'productId' | 'quantity' | 'unitPrice' | 'totalPrice'
   >[];
+}
+
+interface SalesWithProduct extends SaleSelect {
+  product: Pick<ProductSelect, 'name' | 'reference'>;
 }
 
 type QueryValue = string | number | boolean;
@@ -45,6 +50,7 @@ export type {
   Product,
   ProductsWithShipment,
   ShipmentWithProducts,
+  SalesWithProduct,
   ShipmentSelect,
   ShipmentToProductSelect,
 };
