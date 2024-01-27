@@ -26,7 +26,7 @@ const TableCellSorter = ({ title, field, resource }: TableHeaderProps) => {
   };
 
   return (
-    <TableHeaderCell key={title} onClick={toggleSorting} className='cursor-pointer'>
+    <TableHeaderCell key={title} onClick={toggleSorting} className='sticky cursor-pointer'>
       <div className='flex items-center gap-1'>
         {title}
         <Icon icon='expand' className={clsx('h-5 w-5 transition-transform', isDescending && 'rotate-180')} />

@@ -29,22 +29,24 @@ const ShipmentsTable = ({ shipments }: ShipmentsTableProps) => {
   };
 
   const onDeleteModal = () => {
-    addModal({
-      id: 'DELETE_PRODUCT',
-      title: 'Supprimer des expéditions',
-      children: DeleteShipmentsModal,
-    });
+    if (shipmentsRes.selectedItems.length > 0) {
+      addModal({
+        id: 'DELETE_PRODUCT',
+        title: 'Supprimer des expéditions',
+        children: DeleteShipmentsModal,
+      });
+    }
   };
 
   return (
     <Table className='h-full bg-white pb-8'>
       <TableHead>
         <TableRow>
-          <TableHeaderCell>Indice</TableHeaderCell>
+          <TableHeaderCell className='sticky'>Indice</TableHeaderCell>
           {TABLE_HEADER_CELLS.map((cell) => {
             return <TableCellSorter {...cell} resource='shipments' key={cell.title} />;
           })}
-          <TableHeaderCell>
+          <TableHeaderCell className='sticky'>
             <Button variant='light' squared onClick={onDeleteModal}>
               <Icon icon='delete' className='h-5 w-5' />
             </Button>

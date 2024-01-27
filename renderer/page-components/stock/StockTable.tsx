@@ -11,12 +11,12 @@ const StockTable = ({ stock }: StockTableProps) => {
     <Table className='h-full bg-white pb-8'>
       <TableHead>
         <TableRow>
-          <TableHeaderCell>Indice</TableHeaderCell>
-          <TableHeaderCell>Nom</TableHeaderCell>
-          <TableHeaderCell>Ref</TableHeaderCell>
-          <TableHeaderCell>Acheté</TableHeaderCell>
-          <TableHeaderCell>Vendu</TableHeaderCell>
-          <TableHeaderCell>Stock</TableHeaderCell>
+          <TableHeaderCell className='sticky'>Indice</TableHeaderCell>
+          <TableHeaderCell className='sticky'>Nom</TableHeaderCell>
+          <TableHeaderCell className='sticky'>Ref</TableHeaderCell>
+          <TableHeaderCell className='sticky'>Acheté</TableHeaderCell>
+          <TableHeaderCell className='sticky'>Vendu</TableHeaderCell>
+          <TableHeaderCell className='sticky'>Stock</TableHeaderCell>
         </TableRow>
       </TableHead>
       <TableBody>

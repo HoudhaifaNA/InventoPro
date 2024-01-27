@@ -29,23 +29,25 @@ const SalesTable = ({ sales }: SalesTableProps) => {
   };
 
   const onCancelModal = () => {
-    addModal({
-      id: 'CANCEL_SALE',
-      title: 'Supprimer des ventes',
-      children: DeleteSalesModal,
-    });
+    if (salesRes.selectedItems.length > 0) {
+      addModal({
+        id: 'CANCEL_SALE',
+        title: 'Supprimer des ventes',
+        children: DeleteSalesModal,
+      });
+    }
   };
   return (
     <Table className='h-full bg-white pb-8'>
       <TableHead>
         <TableRow>
-          <TableHeaderCell>Indice</TableHeaderCell>
-          <TableHeaderCell>Produit</TableHeaderCell>
-          <TableHeaderCell>Référence</TableHeaderCell>
+          <TableHeaderCell className='sticky'>Indice</TableHeaderCell>
+          <TableHeaderCell className='sticky'>Produit</TableHeaderCell>
+          <TableHeaderCell className='sticky'>Référence</TableHeaderCell>
           {TABLE_HEADER_CELLS.map((cell) => {
             return <TableCellSorter {...cell} resource='sales' key={cell.field} />;
           })}
-          <TableHeaderCell>
+          <TableHeaderCell className='sticky'>
             <Button variant='light' squared onClick={onCancelModal}>
               <Icon icon='delete' className='h-5 w-5' />
             </Button>
