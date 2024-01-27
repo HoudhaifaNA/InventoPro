@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 
 import { ShipmentFormInputs } from './types';
 import API from '@/utils/API';
@@ -27,7 +27,7 @@ const submitShipment = async (data: ShipmentFormInputs, config?: Config): Promis
     console.log(err);
 
     let message = 'Error';
-    if (err instanceof AxiosError) {
+    if (isAxiosError(err)) {
       message = err.response?.data.message;
     } else if (err instanceof Error) {
       message = err.message;

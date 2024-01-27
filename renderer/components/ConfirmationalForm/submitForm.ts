@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 
 import API from '@/utils/API';
 import notify from '@/utils/notify';
@@ -29,7 +29,7 @@ const submitForm = async (data: ConfirmationalInputs, { type, ids }: Config): Pr
     console.log(err);
 
     let message = 'Error';
-    if (err instanceof AxiosError) {
+    if (isAxiosError(err)) {
       message = err.response?.data.message;
     } else if (err instanceof Error) {
       message = err.message;

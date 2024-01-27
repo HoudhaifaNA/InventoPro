@@ -1,10 +1,10 @@
 import { TextInput } from '@tremor/react';
+import { isAxiosError } from 'axios';
 
 import LabeledInput from '@/components/LabeledInput';
 import Button from '@/components/Button';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import API from '@/utils/API';
-import { AxiosError } from 'axios';
 import notify from '@/utils/notify';
 import redirectPath from '@/utils/redirectPath';
 interface LoginFormInputs {
@@ -31,7 +31,7 @@ const LoginForm = () => {
       console.log(err);
 
       let message = 'Error';
-      if (err instanceof AxiosError) {
+      if (isAxiosError(err)) {
         message = err.response?.data.message;
       } else if (err instanceof Error) {
         message = err.message;

@@ -1,5 +1,4 @@
-import { SubmitHandler } from 'react-hook-form';
-import { AxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 
 import { AddProductFormInputs } from './types';
 import API from '@/utils/API';
@@ -34,7 +33,7 @@ const submitProduct = async (data: AddProductFormInputs, config?: Config): Promi
     console.log(err);
 
     let message = 'Error';
-    if (err instanceof AxiosError) {
+    if (isAxiosError(err)) {
       message = err.response?.data.message;
     } else if (err instanceof Error) {
       message = err.message;

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import API from 'utils/API';
-import redirectToPath from '@/utils/redirectPath';
+import redirectPath from '@/utils/redirectPath';
 import { useSavedData } from '@/store';
 
 const useInactiveTimeout = () => {
@@ -13,7 +13,7 @@ const useInactiveTimeout = () => {
 
     const handleInactivity = async () => {
       await API.post('/users/logout');
-      redirectToPath('/login');
+      redirectPath('/login');
     };
 
     const resetTimer = () => {

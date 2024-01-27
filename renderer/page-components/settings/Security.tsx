@@ -1,5 +1,5 @@
 import { TextInput } from '@tremor/react';
-import { AxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 
 import Button from '@/components/Button';
@@ -32,7 +32,7 @@ const Security = () => {
       console.log(err);
 
       let message = 'Error';
-      if (err instanceof AxiosError) {
+      if (isAxiosError(err)) {
         message = err.response?.data.message;
       } else if (err instanceof Error) {
         message = err.message;
