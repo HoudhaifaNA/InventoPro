@@ -76,7 +76,10 @@ export const getAllProducts = catchAsync(async (req, res) => {
 });
 
 export const getProductsList = catchAsync(async (_req, res) => {
-  const productsList = db.select({ id: products.id, name: products.name }).from(products).all();
+  const productsList = db
+    .select({ id: products.id, name: products.name, reference: products.reference })
+    .from(products)
+    .all();
 
   return res.status(200).json({ products: productsList });
 });

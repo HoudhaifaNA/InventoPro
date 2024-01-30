@@ -72,8 +72,8 @@ const AddProductForm = ({ id }: { id: string }) => {
 
   useEffect(() => {
     if (currentShipmentId && unitPrice) {
-      setValue('retailPrice', (retailPercentage / 100) * unitPrice + unitPrice);
-      setValue('wholesalePrice', (wholesalePercentage / 100) * unitPrice + unitPrice);
+      setValue('retailPrice', parseFloat(((retailPercentage / 100) * unitPrice).toFixed(0)) + unitPrice);
+      setValue('wholesalePrice', parseFloat(((wholesalePercentage / 100) * unitPrice).toFixed(0)) + unitPrice);
     } else if (!currentShipmentId) {
       setValue('retailPercentage', 0);
       setValue('wholesalePercentage', 0);

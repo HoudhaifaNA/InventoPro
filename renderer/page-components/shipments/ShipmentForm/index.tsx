@@ -1,15 +1,15 @@
+import { useEffect, useState } from 'react';
 import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 
 import Button from '@/components/Button';
-import FormStepOne from './FormStepOne';
 import FormStepTwo from './FormStepTwo';
+import FormStepOne from './FormStepOne';
 import FormStepThree from './FormStepThree';
 import { ShipmentFormInputs } from './types';
 import { ADD_SHIPMENT_DEFAULT_VALUES } from './constants';
-import { useModals } from '@/store';
+import { useModals, useSavedData } from '@/store';
 import submitShipment from './submitShipment';
 import revalidatePath from '@/utils/revalidatePath';
-import { useEffect, useState } from 'react';
 import { ShipmentWithProducts } from '@/types';
 
 const FORM_ID = 'shipmentForm';
@@ -17,6 +17,7 @@ const FORM_ID = 'shipmentForm';
 const ShipmentForm = ({ id }: { id: string }) => {
   const [step, setStep] = useState(1);
   const { modals, deleteModal } = useModals();
+  const { expenses, updateExpenses } = useSavedData();
 
   const currModal = modals.find((md) => md.id === id);
   const isEdit = currModal && id === 'EDIT_SHIPMENT';
@@ -55,6 +56,8 @@ const ShipmentForm = ({ id }: { id: string }) => {
       if (status === 'success') {
         deleteModal(1);
         revalidatePath(/^\/shipments/);
+        const newExpenses = data.expenses.map((exp) => exp.raison);
+        updateExpenses(Array.from(new Set(expenses.concat(newExpenses))));
       }
     } else {
       setStep(step + 1);
@@ -66,7 +69,7 @@ const ShipmentForm = ({ id }: { id: string }) => {
       <form
         id={FORM_ID}
         onSubmit={handleSubmit(onSubmit)}
-        className='relative flex max-h-[520px] min-h-[320px] flex-col gap-6 overflow-auto pb-1'
+        className='relative flex max-h-[720px] min-h-[620px] w-[760px] flex-col gap-6 overflow-auto pb-1'
       >
         {step === 1 && <FormStepOne />}
         {step === 2 && <FormStepTwo />}

@@ -54,8 +54,13 @@ const FormStepThree = () => {
     },
     {
       title: 'Produits',
-      items: productsBought.map(({ quantity, totalPrice }, ind) => {
-        return { label: `${productsNames[ind]} (${quantity})`, value: formatFiatValue(totalPrice) };
+      items: productsBought.map(({ quantity, expenseSlice, totalPrice }, ind) => {
+        const unitPriceFormatted = formatFiatValue(parseFloat(((totalPrice + expenseSlice) / quantity).toFixed(0)));
+        const totalPriceFormatted = formatFiatValue(totalPrice + expenseSlice);
+        return {
+          label: `${productsNames[ind]} (${quantity}) ( ${unitPriceFormatted} )`,
+          value: `${totalPriceFormatted}`,
+        };
       }),
     },
     {
@@ -78,6 +83,10 @@ const FormStepThree = () => {
         {
           label: 'Total des dépenses',
           value: formatFiatValue(expensesTotal),
+        },
+        {
+          label: 'Total des produits',
+          value: formatFiatValue(productsTotal),
         },
         {
           label: 'Total',

@@ -85,7 +85,7 @@ export const createShipment = catchAsync((req, res, next) => {
     const newShipment = tx.insert(shipments).values(newShipmentBody).returning().get();
 
     productsBought.forEach(({ id, quantity, expenseSlice, totalPrice }) => {
-      const unitPrice = (expenseSlice + totalPrice) / quantity;
+      const unitPrice = parseFloat(((expenseSlice + totalPrice) / quantity).toFixed(0));
 
       const shipmentToProductBody: ShipmentToProductInsert = {
         productId: id,
@@ -176,7 +176,7 @@ export const updateShipment = catchAsync((req, res, next) => {
     });
 
     productsBought.forEach(({ id, quantity, expenseSlice, totalPrice }) => {
-      const unitPrice = (expenseSlice + totalPrice) / quantity;
+      const unitPrice = parseFloat(((expenseSlice + totalPrice) / quantity).toFixed(0));
 
       const shipmentToProductBody: ShipmentToProductInsert = {
         productId: id,
@@ -198,13 +198,26 @@ export const updateShipment = catchAsync((req, res, next) => {
         .where(eq(products.id, id))
         .run();
 
-      tx.update(products)
-        .set({
-          retailPrice: sql`((${products.retailPercentage} * ${unitPrice}) / 100 ) + ${unitPrice}`,
-          wholesalePrice: sql`((${products.wholesalePercentage} * ${unitPrice}) / 100 ) + ${unitPrice}`,
+      const productsWithShipment = tx
+        .select({
+          id: products.id,
+          retailPercentage: products.retailPercentage,
+          wholesalePercentage: products.wholesalePercentage,
         })
-        .where(eq(products.currentShipmentId, updatedShipment.id))
-        .run();
+        .from(products)
+        .where(and(eq(products.currentShipmentId, updatedShipment.id), eq(products.id, id)))
+        .all();
+
+      productsWithShipment.forEach(({ id, retailPercentage, wholesalePercentage }) => {
+        tx.update(products)
+          .set({
+            retailPrice: parseFloat(((retailPercentage / 100) * unitPrice).toFixed(0)) + unitPrice,
+            wholesalePrice: parseFloat(((wholesalePercentage / 100) * unitPrice).toFixed(0)) + unitPrice,
+          })
+          .where(and(eq(products.currentShipmentId, updatedShipment.id), eq(products.id, id)))
+
+          .run();
+      });
 
       if (oldShipmentProduct) {
         tx.update(shipmentsToProducts)

@@ -1,17 +1,21 @@
-import { DatePicker, TextInput, NumberInput } from '@tremor/react';
-import { useFormContext, Controller } from 'react-hook-form';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useState } from 'react';
+import useSWR from 'swr';
+import { Controller, useFormContext } from 'react-hook-form';
+import { DatePicker, MultiSelect, MultiSelectItem, TextInput, NumberInput, Divider } from '@tremor/react';
 import { nanoid } from 'nanoid';
 
 import Button from '@/components/Button';
 import FormRow from '@/components/FormRow';
 import LabeledInput from '@/components/LabeledInput';
-import Icon from '@/components/Icon';
-import { Currencies, ShipmentFormInputs } from './types';
-import { Expense } from 'types';
-import { BTN_TYPES, CURRENCY_OPTIONS } from './constants';
-import { useEffect } from 'react';
+import { ProductsList, ShipmentFormInputs } from './types';
+import { fetcher } from '@/utils/API';
+import { useModals } from '@/store';
+import AddProductForm from '@/page-components/products/ProductForm';
+import { calculateExpensesTotal, calculateShipmentTotal } from '@/utils/calculations';
 
 const FormStepTwo = () => {
+  const { addModal } = useModals((state) => state);
   const {
     control,
     register,
@@ -20,135 +24,188 @@ const FormStepTwo = () => {
     formState: { errors },
   } = useFormContext<ShipmentFormInputs>();
 
-  const [expenses, arrivalDate] = watch(['expenses', 'arrivalDate']);
+  const { data } = useSWR<ProductsList>('/products/list', fetcher);
+
+  const [productsIds, productsBought, expenses] = watch(['productsIds', 'productsBought', 'expenses']);
+  const expensesTotal = calculateExpensesTotal(expenses);
+  const productsTotal = calculateShipmentTotal(productsBought);
 
   useEffect(() => {
-    const calculatedExpenses = expenses.map((exp) => {
-      const { type, cost_in_rmb, cost_in_usd, exr } = exp;
-      let cost_in_dzd = exp.cost_in_dzd;
-      if (type === 'RMB') cost_in_dzd = cost_in_rmb * (exr / 100);
-      if (type === 'USD') cost_in_dzd = cost_in_usd * (exr / 100);
-      return { ...exp, cost_in_dzd };
+    const filteredProducts = productsBought.filter((pB) => productsIds.indexOf(pB.id) !== -1);
+
+    setValue('productsBought', filteredProducts);
+  }, [productsIds, setValue]);
+
+  useEffect(() => {
+    productsBought.forEach((pr, ind) => {
+      const prPercentage = (pr.totalPrice / productsTotal) * 100;
+      const prSlice = (prPercentage * expensesTotal) / 100;
+
+      const roundedPrPercentage = Math.round(prPercentage * 100) / 100;
+      const roundedPrSlice = parseFloat(prSlice.toFixed(0));
+
+      setValue(`productsBought.${ind}.percentage`, roundedPrPercentage || 0);
+      setValue(`productsBought.${ind}.expenseSlice`, roundedPrSlice || 0);
     });
+  }, [productsTotal, expensesTotal, productsBought]);
 
-    setValue('expenses', calculatedExpenses);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(expenses)]);
-
-  const addExpense = (currency: Currencies) => {
-    let type: Expense['type'] = 'DZD';
-    if (currency === 'Dollar') type = 'USD';
-    if (currency === 'Renminbi') type = 'RMB';
-    const newExpense: Expense = {
-      id: nanoid(),
-      type,
-      raison: '',
-      exr: 0,
-      cost_in_usd: 0,
-      cost_in_rmb: 0,
-      cost_in_dzd: 0,
-    };
-
-    const updatedExpenses = [...expenses, newExpense];
-    setValue('expenses', updatedExpenses);
-  };
-
-  const deleteExpense = (id: string) => {
-    const updatedExpenses = expenses.filter((exp) => exp.id !== id);
-    setValue('expenses', updatedExpenses);
-  };
+  const onAddModal = () => addModal({ id: nanoid(), title: 'Ajouter un produit', children: AddProductForm });
 
   return (
     <>
       <FormRow>
-        {BTN_TYPES.map((type) => {
-          return (
-            <Button variant='light' icon='add' className='pl-0' key={type} onClick={() => addExpense(type)}>
-              {type}
-            </Button>
-          );
-        })}
-      </FormRow>
-      <FormRow>
-        <LabeledInput label="Date d'arrivée :" className='flex-1'>
+        <LabeledInput label="Date d'expédition :" className='flex-1'>
           <Controller
-            name='arrivalDate'
+            name='shipmentDate'
             control={control}
-            render={({ field: { onChange } }) => {
-              return <DatePicker placeholder='Sélectionner une date' value={arrivalDate} onValueChange={onChange} />;
+            render={({ field: { onChange, value } }) => {
+              return (
+                <DatePicker
+                  placeholder='Sélectionner une date'
+                  enableClear={false}
+                  value={value}
+                  onValueChange={onChange}
+                />
+              );
             }}
           />
         </LabeledInput>
-        <LabeledInput id='shipment-id' label="ID d'expédition :" className='flex-1'>
-          <TextInput placeholder='EXP-454654EF9A' {...register('shipmentCode')} />
+        <LabeledInput label='Total des dépenses :' className='flex-1'>
+          <NumberInput placeholder='0' value={expensesTotal} min={0} disabled enableStepper={false} />
         </LabeledInput>
       </FormRow>
-      {expenses.map(({ id, type }, ind) => {
-        const { icon, field } = CURRENCY_OPTIONS[type];
-        const expError = errors.expenses && errors.expenses[ind] ? errors.expenses[ind] : null;
+      <FormRow>
+        <LabeledInput label='Liste de produits :' className='min-w-[49%] max-w-[49%]'>
+          <Controller
+            name='productsIds'
+            control={control}
+            render={({ field: { onChange, value } }) => {
+              return (
+                <MultiSelect
+                  placeholder='Sélectionner...'
+                  value={value}
+                  onValueChange={onChange}
+                  placeholderSearch='Recherche'
+                >
+                  <Button
+                    variant='light'
+                    icon='add'
+                    className='w-full justify-start rounded-none px-[7px]'
+                    onClick={onAddModal}
+                  >
+                    Ajouter un produit
+                  </Button>
+                  {data?.products &&
+                    data.products.map(({ id, name }) => {
+                      return (
+                        <MultiSelectItem value={id} key={id}>
+                          {name}
+                        </MultiSelectItem>
+                      );
+                    })}
+                </MultiSelect>
+              );
+            }}
+          />
+        </LabeledInput>
+        <LabeledInput label='Total des produits :' className='flex-1'>
+          <NumberInput placeholder='0' value={productsTotal} min={0} disabled enableStepper={false} />
+        </LabeledInput>
+      </FormRow>
+      {data?.products &&
+        productsIds.map((id, ind) => {
+          const currProduct = data.products.find((product) => product.id === id);
+          if (currProduct) {
+            setValue(`productsNames.${ind}`, currProduct.name);
+            const productError =
+              errors.productsBought && errors.productsBought[ind] ? errors.productsBought[ind] : null;
 
-        return (
-          <FormRow key={id}>
-            <LabeledInput
-              id={`raison-${ind}`}
-              label='Raison :'
-              className='basis-[49%]'
-              isError={!!expError?.raison}
-              errorMessage={expError?.raison && expError?.raison.message}
-            >
-              <TextInput
-                {...register(`expenses.${ind}.raison`, { required: { value: true, message: 'Raison est requis' } })}
-                placeholder="Billet d'avion"
-              />
-            </LabeledInput>
-            {type !== 'DZD' && (
-              <LabeledInput
-                id={`exr-${ind}`}
-                label={`Prix de ${icon}100 :`}
-                className='flex-1'
-                isError={!!expError?.exr}
-                errorMessage={expError?.exr && expError?.exr.message}
-              >
-                <NumberInput
-                  {...register(`expenses.${ind}.exr`, {
-                    valueAsNumber: true,
-                    required: { value: true, message: 'Taux de change est requise' },
-                    min: { value: 0, message: 'Minimum est 0' },
-                  })}
-                  placeholder='18000'
-                  min={0}
-                  enableStepper={false}
-                />
-              </LabeledInput>
-            )}
-            <LabeledInput
-              id='cost'
-              label='Coût :'
-              className='flex-1'
-              isError={!!expError?.[field]}
-              errorMessage={expError?.[field] && expError?.[field]?.message}
-            >
-              <NumberInput
-                {...register(`expenses.${ind}.${field}`, {
-                  valueAsNumber: true,
-                  required: { value: true, message: 'Coût est requis' },
-                  min: { value: 0, message: 'Minimum est 0' },
-                })}
-                placeholder='170'
-                min={0}
-                enableStepper={false}
-              />
-            </LabeledInput>
-            <Button
-              className='group-hover:animate-showDeleteBtn absolute right-0 top-8 opacity-0'
-              squared
-              onClick={() => deleteExpense(id)}
-            >
-              <Icon icon='close' className='h-5 w-5' />
-            </Button>
-          </FormRow>
-        );
-      })}
+            return (
+              <>
+                <Divider className='my-0'>
+                  {currProduct.name} ({currProduct.reference})
+                </Divider>
+
+                <FormRow key={id}>
+                  <LabeledInput label='Nom du produit :' className='hidden'>
+                    <TextInput {...register(`productsBought.${ind}.id`)} value={id} />
+                  </LabeledInput>
+
+                  <LabeledInput
+                    id={`product-quantity-${ind}`}
+                    label='Quantité :'
+                    className='flex-1'
+                    isError={!!productError?.quantity}
+                    errorMessage={productError?.quantity && productError?.quantity.message}
+                  >
+                    <NumberInput
+                      {...register(`productsBought.${ind}.quantity`, {
+                        valueAsNumber: true,
+                        required: { value: true, message: 'Quantité est requise' },
+                        min: { value: 1, message: 'Quantité minimum 1' },
+                      })}
+                      placeholder='10'
+                      min={0}
+                      enableStepper={false}
+                    />
+                  </LabeledInput>
+                  <LabeledInput
+                    id={`product-price-${ind}`}
+                    label='Prix :'
+                    className='flex-1'
+                    isError={!!productError?.totalPrice}
+                    errorMessage={productError?.totalPrice && productError?.totalPrice.message}
+                  >
+                    <NumberInput
+                      {...register(`productsBought.${ind}.totalPrice`, {
+                        valueAsNumber: true,
+                        required: { value: true, message: 'Prix est requis' },
+                        min: { value: 0, message: 'Minimum est 0' },
+                      })}
+                      placeholder='100000'
+                      min={0}
+                      enableStepper={false}
+                    />
+                  </LabeledInput>
+                  <LabeledInput
+                    label='Pourcentage :'
+                    className='flex-1'
+                    isError={!!productError?.percentage}
+                    errorMessage={productError?.percentage && productError?.percentage.message}
+                  >
+                    <NumberInput
+                      {...register(`productsBought.${ind}.percentage`, {
+                        valueAsNumber: true,
+                      })}
+                      placeholder='0'
+                      min={0}
+                      disabled
+                      enableStepper={false}
+                    />
+                  </LabeledInput>
+                  <LabeledInput
+                    label='Dép :'
+                    className='flex-1'
+                    isError={!!productError?.expenseSlice}
+                    errorMessage={productError?.expenseSlice && productError?.expenseSlice.message}
+                  >
+                    <NumberInput
+                      {...register(`productsBought.${ind}.expenseSlice`, {
+                        valueAsNumber: true,
+                        required: { value: true, message: 'Tranche est requis' },
+                        min: { value: 0, message: 'Minimum est 0' },
+                      })}
+                      placeholder='5000'
+                      min={0}
+                      disabled
+                      enableStepper={false}
+                    />
+                  </LabeledInput>
+                </FormRow>
+              </>
+            );
+          }
+        })}
     </>
   );
 };

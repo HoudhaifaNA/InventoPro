@@ -3,9 +3,14 @@ import { Expense, Product } from 'types';
 export interface ProductsItem {
   id: string;
   name: string;
+  reference: string;
 }
 export interface ProductsList {
   products: ProductsItem[];
+}
+
+interface ProductBought extends Product {
+  percentage: number;
 }
 
 export interface ShipmentFormInputs {
@@ -14,7 +19,7 @@ export interface ShipmentFormInputs {
   shipmentCode: string;
   productsIds: string[];
   productsNames: string[];
-  productsBought: Product[];
+  productsBought: ProductBought[];
   expenses: Expense[];
 }
 
