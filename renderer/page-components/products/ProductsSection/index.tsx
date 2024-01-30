@@ -17,12 +17,9 @@ import ConfirmationalForm from '@/components/ConfirmationalForm';
 const ProductsSection = () => {
   const display = useDisplay((state) => state.display);
   const { setResults, selectAll, products } = useResources((state) => state);
-  const { companies, categories, updateData } = useSavedData((state) => state);
   const { addModal } = useModals((state) => state);
 
   const { data, error, isLoading } = useSWR<GetProducts>(products.fetchedUrl, fetcher);
-  const companiesList = data && data['companiesList'] ? data['companiesList'] : companies;
-  const categoriesList = data && data['categoriesList'] ? data['categoriesList'] : categories;
 
   const DeleteProductsModal = () => {
     return (
@@ -50,10 +47,6 @@ const ProductsSection = () => {
   useEffect(() => {
     if (data) setResults('products', data.results);
   }, [data]);
-
-  useEffect(() => {
-    updateData(companiesList, categoriesList);
-  }, [JSON.stringify(companiesList), JSON.stringify(categoriesList)]);
 
   const renderContent = () => {
     if (error) {

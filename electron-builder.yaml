@@ -1,6 +1,6 @@
-appId: 'inventopro.houdhaifa'
+appId: 'inventopro'
 productName: 'InventoPro'
-copyright: 'Copyright (c) 2024 Houdhaifa'
+copyright: 'Copyright (c) 2024 InventoPro'
 directories:
   output: dist
   buildResources: resources

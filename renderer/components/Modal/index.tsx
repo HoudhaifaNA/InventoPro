@@ -14,7 +14,7 @@ interface ModalProps {
   children: ReactNode;
 }
 
-const modalStyles = `absolute left-1/2 top-1/2 w-[720px] -translate-x-1/2 -translate-y-1/2 scale-90 overflow-auto rounded-lg bg-white`;
+const modalStyles = `absolute left-1/2 top-1/2 min-w-[720px] -translate-x-1/2 -translate-y-1/2 scale-90 overflow-y-auto rounded-lg bg-white`;
 
 const Modal = ({ id, title, zIndexMultiplier = 1, children }: ModalProps) => {
   const [signal, toggleSignal] = useState(false);

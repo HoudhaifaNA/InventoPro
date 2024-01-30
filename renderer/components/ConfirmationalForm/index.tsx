@@ -7,10 +7,12 @@ import Button from '@/components/Button';
 import FormRow from '@/components/FormRow';
 import LabeledInput from '@/components/LabeledInput';
 import cn from '@/utils/cn';
-import { useModals, useResources } from '@/store';
+import { useModals, useResources, useSavedData } from '@/store';
 import { ConfirmationalInputs, FormType } from './types';
 import submitForm from './submitForm';
 import revalidatePath from '@/utils/revalidatePath';
+import { GetProductsStore } from '@/types';
+import API from '@/utils/API';
 
 const FORM_ID = 'confirmationalForm';
 
@@ -26,6 +28,7 @@ const ConfirmationalForm = ({ className, type, ids, children }: ConfirmationalFo
   const { handleSubmit, register, formState } = useForm<ConfirmationalInputs>();
   const { deleteModal } = useModals();
   const { products, shipments, sales, resetSelected } = useResources();
+  const { names, categories, companies, updateData } = useSavedData();
 
   const { errors, isSubmitting } = formState;
 
@@ -35,6 +38,11 @@ const ConfirmationalForm = ({ className, type, ids, children }: ConfirmationalFo
       deleteModal(1);
       if (type === 'd-products') {
         revalidatePath(/^\/products/);
+        const res = await API<GetProductsStore>('/products/store');
+        if (res.data.names) {
+          const { names, categories, companies } = res.data;
+          updateData(names, companies, categories);
+        }
         products.selectedItems.length > 0 && resetSelected('products');
         router.push('/products');
       } else if (type === 'd-shipments') {

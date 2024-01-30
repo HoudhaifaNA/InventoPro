@@ -85,8 +85,12 @@ interface GetProducts {
   results: number;
   start: number;
   products: ProductsWithShipment[];
-  companiesList: string[];
-  categoriesList: string[];
+}
+
+interface GetProductsStore {
+  names: string[];
+  companies: string[];
+  categories: string[];
 }
 
 export type {
@@ -97,6 +101,7 @@ export type {
   IModal,
   Expense,
   GetStats,
+  GetProductsStore,
   Product,
   ProductsWithShipment,
   ProductStock,

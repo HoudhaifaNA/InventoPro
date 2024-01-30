@@ -7,6 +7,7 @@ interface LabeledInputProps extends Pick<ComponentPropsWithoutRef<'div'>, 'class
   color?: 'white' | 'black';
   isError?: boolean;
   errorMessage?: string;
+  additionalLabel?: ReactElement | JSX.Element;
   children: ReactElement | JSX.Element;
 }
 
@@ -17,6 +18,7 @@ const LabeledInput = ({
   isError,
   errorMessage,
   className,
+  additionalLabel,
   children,
 }: LabeledInputProps) => {
   const clonedChildren = cloneElement(children, { id });
@@ -25,9 +27,13 @@ const LabeledInput = ({
     <div className={className}>
       <label
         htmlFor={id}
-        className={clsx('mb-2 inline-block text-sm font-medium', color === 'white' ? 'text-white' : 'text-black')}
+        className={clsx(
+          'mb-2 flex items-center gap-1 text-sm font-medium',
+          color === 'white' ? 'text-white' : 'text-black'
+        )}
       >
-        {label}
+        <span>{label}</span>
+        {additionalLabel}
       </label>
       {clonedChildren}
       {isError && errorMessage && <span className='mt-1 text-xs font-medium text-red-500'>{errorMessage}</span>}

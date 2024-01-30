@@ -72,29 +72,38 @@ export const getAllProducts = catchAsync(async (req, res) => {
     },
   });
 
-  const companiesList = db
+  res.status(200).json({ results: allProducts.length, start: offset + 1, products: productsList });
+});
+
+export const getProductsList = catchAsync(async (_req, res) => {
+  const productsList = db.select({ id: products.id, name: products.name }).from(products).all();
+
+  return res.status(200).json({ products: productsList });
+});
+
+export const getProductsStore = catchAsync(async (_req, res) => {
+  const names = db
+    .select({ name: products.name })
+    .from(products)
+    .groupBy((t) => [t.name])
+    .all()
+    .map(({ name }) => name);
+
+  const companies = db
     .select({ company: products.company })
     .from(products)
     .groupBy((t) => [t.company])
     .all()
     .map(({ company }) => company);
 
-  const categoriesList = db
+  const categories = db
     .select({ category: products.category })
     .from(products)
     .groupBy((t) => [t.category])
     .all()
     .map(({ category }) => category);
 
-  res
-    .status(200)
-    .json({ results: allProducts.length, start: offset + 1, products: productsList, companiesList, categoriesList });
-});
-
-export const getProductsList = catchAsync(async (req, res) => {
-  const productsList = db.select({ id: products.id, name: products.name }).from(products).all();
-
-  return res.status(200).json({ products: productsList });
+  return res.status(200).json({ names, companies, categories });
 });
 
 export const getProductById = catchAsync(async (req, res) => {

@@ -3,8 +3,11 @@ import { app, ipcMain } from 'electron';
 import serve from 'electron-serve';
 import { createWindow } from './helpers';
 import '../backend/server';
+// import { machineIdSync } from 'node-machine-id';
 
 const isProd = process.env.NODE_ENV === 'production';
+
+// const ip = machineIdSync(true);
 
 if (isProd) {
   serve({ directory: 'app' });
@@ -13,6 +16,7 @@ if (isProd) {
 }
 
 (async () => {
+  // if (ip === 'e04189e5-820d-4eaa-ab02-46efa161cebb') {
   await app.whenReady();
 
   const mainWindow = createWindow('main', {
@@ -27,9 +31,10 @@ if (isProd) {
     await mainWindow.loadURL('app://./login');
   } else {
     const port = process.argv[2];
-    await mainWindow.loadURL(`http://localhost:${port}/login`);
+    await mainWindow.loadURL(`http://localhost:${port}/products`);
     mainWindow.webContents.openDevTools();
   }
+  // }
 })();
 
 app.on('window-all-closed', () => {

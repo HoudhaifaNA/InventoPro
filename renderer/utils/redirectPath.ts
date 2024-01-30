@@ -1,7 +1,7 @@
 const redirectPath = (url: string) => {
-  let convertedUrl = process.env.NODE_ENV === 'production' ? `${url}.html` : url;
+  // let convertedUrl = process.env.NODE_ENV === 'production' ? `${url}.html` : url;
 
-  location.assign(convertedUrl);
+  location.assign(url);
 };
 
 export default redirectPath;
