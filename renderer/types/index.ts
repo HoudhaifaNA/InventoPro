@@ -1,56 +1,113 @@
-export interface Expense {
-  id: string;
-  raison: string;
-  cost_in_usd: number;
-  cost_in_rmb: number;
-  cost_in_dzd: number;
-}
+import { ProductSelect, SaleSelect, ShipmentSelect, ShipmentToProductSelect } from '../../db/schema';
+import { Expense, Product } from '../../types';
 
-export interface Product {
-  id: string;
-  quantity: number;
-  totalPrice: number;
-}
-
-export const isValidExpenses = (expenses: any): expenses is Expense[] => {
-  if (!Array.isArray(expenses)) {
-    return false;
-  }
-
-  for (const exp of expenses) {
-    if (
-      typeof exp === 'object' &&
-      typeof exp.id === 'string' &&
-      typeof exp.raison === 'string' &&
-      typeof exp.cost_in_dzd === 'number' &&
-      typeof exp.cost_in_usd === 'number' &&
-      typeof exp.cost_in_rmb === 'number'
-    ) {
-      continue;
-    } else {
-      return false;
-    }
-  }
-
-  return true;
+type productShipment = Pick<ShipmentToProductSelect, 'unitPrice' | 'quantity' | 'shipmentId'> & {
+  shipment: ShipmentSelect;
 };
-export const isValidProducts = (products: any): products is Product[] => {
-  if (!Array.isArray(products)) {
-    return false;
-  }
 
-  for (const product of products) {
-    if (
-      typeof product === 'object' &&
-      typeof product.id === 'string' &&
-      typeof product.quantity === 'number' &&
-      typeof product.totalPrice === 'number'
-    ) {
-      continue;
-    } else {
-      return false;
-    }
-  }
+interface ProductsWithShipment extends ProductSelect {
+  productShipments: productShipment[];
+}
 
-  return true;
+interface ShipmentWithProducts extends ShipmentSelect {
+  shipmentProducts: Pick<
+    ShipmentToProductSelect,
+    'expenseSlice' | 'productId' | 'quantity' | 'unitPrice' | 'totalPrice'
+  >[];
+}
+
+interface SalesWithProduct extends SaleSelect {
+  product: Pick<ProductSelect, 'name' | 'reference'>;
+}
+
+interface ProductStock {
+  id: string;
+  name: string;
+  reference: string;
+  bought: number;
+  sold: number;
+  stock: number;
+}
+interface GetStock {
+  stock: ProductStock[];
+}
+
+interface ProductMonthlyStats {
+  month: string;
+  purchases: number;
+  sales: number;
+}
+interface ProductSalesStats {
+  name: string;
+  salesCount: number;
+}
+
+interface GetStats {
+  productsBought: {
+    count: number;
+    quantity: number | null;
+    total: number | null;
+  };
+  totalSales: {
+    count: number;
+    quantity: number | null;
+    total: number | null;
+  };
+  totalExpenses: {
+    count: number;
+    total: number | null;
+  };
+  totalShipments: {
+    count: number;
+    total: number | null;
+  };
+  productsStatsPerMonth: ProductMonthlyStats[];
+  topFiveProducts: ProductSalesStats[];
+}
+
+type QueryValue = string | number | boolean;
+interface QueryParameters {
+  [key: string]: QueryValue;
+}
+type QueryItem = {
+  query: string;
+  value: QueryValue;
+};
+
+interface IModal {
+  id: string;
+  title: string;
+  children: ({ id }: { id: string }) => JSX.Element;
+  additionalData?: any;
+}
+
+interface GetProducts {
+  results: number;
+  start: number;
+  products: ProductsWithShipment[];
+}
+
+interface GetProductsStore {
+  names: string[];
+  companies: string[];
+  categories: string[];
+}
+
+export type {
+  ProductSelect,
+  QueryParameters,
+  GetProducts,
+  QueryItem,
+  IModal,
+  Expense,
+  GetStats,
+  GetProductsStore,
+  Product,
+  ProductsWithShipment,
+  ProductStock,
+  GetStock,
+  ShipmentWithProducts,
+  SalesWithProduct,
+  ShipmentSelect,
+  ShipmentToProductSelect,
 };

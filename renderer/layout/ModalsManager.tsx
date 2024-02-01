@@ -1,23 +1,14 @@
-'use client';
-import { useState } from 'react';
-
 import Modal from '@/components/Modal';
-
-interface IModal {
-  id: string;
-  title: string;
-  children: () => JSX.Element;
-}
-const MODALS: IModal[] = [];
+import { useModals } from '@/store';
 
 const ModalsManager = () => {
-  const [modalsList, setModalsList] = useState(MODALS);
+  const { modals } = useModals();
 
   const renderModals = () => {
-    return modalsList.map((modal, ind) => {
+    return modals.map((modal, ind) => {
       return (
-        <Modal title={modal.title} key={modal.id} zIndexMultiplier={ind + 1}>
-          {<modal.children />}
+        <Modal id={modal.id} title={modal.title} key={modal.id} zIndexMultiplier={ind + 1}>
+          {<modal.children id={modal.id} />}
         </Modal>
       );
     });

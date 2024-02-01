@@ -32,21 +32,12 @@ const queryProduct = async (id: string) => {
   const product = await db.query.products.findFirst({
     where: eq(products.id, id),
     with: {
-      shipments: {
+      productShipments: {
         columns: {
           productId: false,
-          quantity: false,
+          quantity: true,
           shipmentId: true,
           unitPrice: true,
-        },
-
-        with: {
-          shipments: {
-            columns: {
-              shipmentCode: true,
-              arrivalDate: true,
-            },
-          },
         },
       },
     },
@@ -59,50 +50,63 @@ export const getAllProducts = catchAsync(async (req, res) => {
   const { page, orderBy } = req.query;
 
   const pageNumber = typeof page === 'string' && !isNaN(parseInt(page)) ? parseInt(page) : 1;
-  const limit = 5;
-  const offset = limit * pageNumber - limit;
+  const limit = req.query.limit ? Number(req.query.limit) : 100;
 
+  const offset = limit * pageNumber - limit;
   const allProducts = await db.query.products.findMany({ where: generateFilter(req) });
 
   const productsList = await db.query.products.findMany({
-    orderBy: sortResults(orderBy),
+    orderBy: sortResults(orderBy, products),
     where: generateFilter(req),
     limit,
     offset,
     with: {
-      shipments: {
+      productShipments: {
         columns: {
           productId: false,
           shipmentId: true,
           unitPrice: true,
           quantity: true,
         },
-
-        with: {
-          shipments: {
-            columns: {
-              shipmentCode: true,
-              arrivalDate: true,
-            },
-          },
-        },
       },
     },
   });
 
-  const companiesList = await db
+  res.status(200).json({ results: allProducts.length, start: offset + 1, products: productsList });
+});
+
+export const getProductsList = catchAsync(async (_req, res) => {
+  const productsList = db
+    .select({ id: products.id, name: products.name, reference: products.reference })
+    .from(products)
+    .all();
+
+  return res.status(200).json({ products: productsList });
+});
+
+export const getProductsStore = catchAsync(async (_req, res) => {
+  const names = db
+    .select({ name: products.name })
+    .from(products)
+    .groupBy((t) => [t.name])
+    .all()
+    .map(({ name }) => name);
+
+  const companies = db
     .select({ company: products.company })
     .from(products)
-    .groupBy((t) => [t.company]);
+    .groupBy((t) => [t.company])
+    .all()
+    .map(({ company }) => company);
 
-  const categoriesList = await db
+  const categories = db
     .select({ category: products.category })
     .from(products)
-    .groupBy((t) => [t.category]);
+    .groupBy((t) => [t.category])
+    .all()
+    .map(({ category }) => category);
 
-  res
-    .status(200)
-    .json({ results: allProducts.length, start: offset + 1, products: productsList, companiesList, categoriesList });
+  return res.status(200).json({ names, companies, categories });
 });
 
 export const getProductById = catchAsync(async (req, res) => {
@@ -113,7 +117,7 @@ export const getProductById = catchAsync(async (req, res) => {
 });
 
 export const createProduct = catchAsync(async (req, res, next) => {
-  const { name, ref, company, category, stock, retailPrice, wholesalePrice } = req.body;
+  const { name, reference, company, category, stock, retailPrice, wholesalePrice } = req.body;
   const { file } = req;
   let thumbnail;
 
@@ -124,7 +128,7 @@ export const createProduct = catchAsync(async (req, res, next) => {
 
     const newProductBody: ProductInsert = {
       name,
-      ref,
+      reference,
       company,
       thumbnail,
       category,
@@ -153,7 +157,7 @@ export const createProduct = catchAsync(async (req, res, next) => {
 export const updateProduct = catchAsync(async (req, res, next) => {
   const {
     name,
-    ref,
+    reference,
     company,
     category,
     currentShipmentId,
@@ -167,6 +171,7 @@ export const updateProduct = catchAsync(async (req, res, next) => {
   const product = await queryProduct(id);
   const oldThumbnail = product?.thumbnail;
   let thumbnail = null;
+  let shipmentId = currentShipmentId;
 
   try {
     if (!product) {
@@ -180,19 +185,21 @@ export const updateProduct = catchAsync(async (req, res, next) => {
       thumbnail = oldThumbnail;
     }
 
-    const shipmentIndex = product?.shipments.findIndex((shipment) => shipment.shipmentId === currentShipmentId);
+    if (currentShipmentId === 'undefined') shipmentId = null;
 
-    if (currentShipmentId && shipmentIndex === -1) {
+    const shipmentIndex = product?.productShipments.findIndex((shipment) => shipment.shipmentId === shipmentId);
+
+    if (shipmentId && shipmentIndex === -1) {
       return next(new AppError('Invalid shipment', 401));
     }
 
     const productBody: ProductInsert = {
       name,
-      ref,
+      reference,
       thumbnail,
       company,
       category,
-      currentShipmentId,
+      currentShipmentId: shipmentId,
       retailPercentage,
       wholesalePercentage,
       retailPrice,

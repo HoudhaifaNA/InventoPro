@@ -1,21 +1,24 @@
-'use client';
 import { ReactNode, useEffect, useState } from 'react';
 import clsx from 'clsx';
 
 import Button from '@/components/Button';
 import Icon from '@/components/Icon';
 import useDragger from '@/hooks/useDragger';
+import { useModals } from '@/store';
+import CloseModal from '../CloseModal';
 
 interface ModalProps {
+  id: string;
   title: string;
   zIndexMultiplier?: number;
   children: ReactNode;
 }
 
-const modalStyles = `absolute left-1/2 top-1/2 w-[720px] -translate-x-1/2 -translate-y-1/2 scale-90 overflow-auto rounded-lg bg-white`;
+const modalStyles = `absolute left-1/2 top-1/2 min-w-[720px] -translate-x-1/2 -translate-y-1/2 scale-90 overflow-y-auto rounded-lg bg-white`;
 
-const Modal = ({ title, zIndexMultiplier = 1, children }: ModalProps) => {
+const Modal = ({ id, title, zIndexMultiplier = 1, children }: ModalProps) => {
   const [signal, toggleSignal] = useState(false);
+  const { addModal, deleteModal } = useModals();
 
   const zIndex = 10 * zIndexMultiplier;
   const holderElementId = `holder-${zIndex}`;
@@ -28,12 +31,21 @@ const Modal = ({ title, zIndexMultiplier = 1, children }: ModalProps) => {
     let modalActions = modal ? modal.querySelector('.modal-actions') : null;
 
     if (modal && modalActions) modal.appendChild(modalActions);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (signal) toggleSignal(false);
   }, [signal]);
+
+  const toggleCloseModal = () => {
+    if (id === 'warning-modal') {
+      deleteModal(1);
+    } else {
+      addModal({ id: 'warning-modal', title: 'Fermer modale', children: CloseModal });
+    }
+  };
 
   return (
     <main className='fixed left-0 top-0 h-screen w-screen !p-0' style={{ zIndex }}>
@@ -44,7 +56,7 @@ const Modal = ({ title, zIndexMultiplier = 1, children }: ModalProps) => {
           className='flex cursor-grab items-center justify-between gap-4 border-b border-neutral-300 px-4 py-2 active:cursor-grabbing '
         >
           <h1 className='truncate text-base font-semibold'>{title}</h1>
-          <Button variant='light' squared>
+          <Button variant='light' squared onClick={toggleCloseModal}>
             <Icon icon='close' className='h-5 w-5' />
           </Button>
         </div>

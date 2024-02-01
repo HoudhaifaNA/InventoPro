@@ -4,10 +4,50 @@ import { products, sales, shipments, shipmentsToProducts } from '../../db/schema
 import catchAsync from '../utils/catchAsync';
 import { db } from '../../db';
 
+export const getStock = catchAsync((_req, res) => {
+  const boughtsCount = db
+    .select({ id: shipmentsToProducts.productId, totalBought: sum(shipmentsToProducts.quantity).mapWith(Number) })
+    .from(shipmentsToProducts)
+    .groupBy(shipmentsToProducts.productId)
+    .all();
+
+  const salesCount = db
+    .select({ id: sales.productId, totalSold: sum(sales.quantity).mapWith(Number) })
+    .from(sales)
+    .groupBy(sales.productId)
+    .all();
+
+  const productsList = db
+    .select({ id: products.id, name: products.name, reference: products.reference, stock: products.stock })
+    .from(products)
+    .all();
+
+  const boughtsMap = new Map(boughtsCount.map((item) => [item.id, item.totalBought]));
+  const salesMap = new Map(salesCount.map((item) => [item.id, item.totalSold]));
+
+  const mergedResults = productsList.map((product) => {
+    const id = product.id;
+    const bought = boughtsMap.get(id) || 0;
+    const sold = salesMap.get(id) || 0;
+
+    return {
+      id,
+      name: product.name,
+      reference: product.reference,
+      bought,
+      sold,
+      stock: product.stock,
+    };
+  });
+
+  return res.status(200).json({ stock: mergedResults });
+});
+
 export const getStats = catchAsync((_req, res) => {
   const productsBought = db
     .select({
       count: countDistinct(shipmentsToProducts.productId).mapWith(Number),
+      quantity: sum(shipmentsToProducts.quantity).mapWith(Number),
       total: sum(shipmentsToProducts.totalPrice).mapWith(Number),
     })
     .from(shipmentsToProducts)
@@ -28,14 +68,14 @@ export const getStats = catchAsync((_req, res) => {
     .get();
 
   const totalShipments = db
-    .select({ count: count(shipments.id), total: sum(shipments.expenses).mapWith(Number) })
+    .select({ count: count(shipments.id), total: sum(shipments.total).mapWith(Number) })
     .from(shipments)
     .get();
 
   const purchasesPerMonth = db
     .select({
       month: sql`strftime('%Y-%m', shipments.shipment_date)`.mapWith(String),
-      purchases: count(shipmentsToProducts.shipmentId),
+      purchases: sum(shipmentsToProducts.quantity),
     })
     .from(shipmentsToProducts)
     .leftJoin(shipments, eq(shipmentsToProducts.shipmentId, shipments.id))
@@ -43,7 +83,7 @@ export const getStats = catchAsync((_req, res) => {
     .all();
 
   const salesPerMonth = db
-    .select({ month: sql`strftime('%Y-%m', sales.sold_at)`.mapWith(String), sales: count(sales.id) })
+    .select({ month: sql`strftime('%Y-%m', sales.sold_at)`.mapWith(String), sales: sum(sales.quantity) })
     .from(sales)
     .groupBy(sql`strftime('%Y-%m', sales.sold_at)`)
     .all();

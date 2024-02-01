@@ -3,23 +3,24 @@ import { useState } from 'react';
 import Button from '@/components/Button';
 import Icon from '@/components/Icon';
 
-export interface Option {
+export interface Option<T> {
   title?: string;
   icon?: string;
-  payload: string;
+  payload: T;
 }
 
-interface SwitcherProps {
-  options: Option[];
+interface SwitcherProps<T> {
+  options: Option<T>[];
+  defaultValue: T;
   squared?: boolean;
-  handleSelect: (payload: Option['payload']) => void;
+  handleSelect: (payload: T) => void;
 }
 
-const Switcher = ({ options, squared, handleSelect }: SwitcherProps) => {
-  const [selectedOption, selectOption] = useState(options[0].payload);
+const Switcher = <T,>({ options, defaultValue, squared, handleSelect }: SwitcherProps<T>) => {
+  const [selectedOption, selectOption] = useState(defaultValue);
 
   const renderOptions = () => {
-    return options.map(({ title, icon, payload }) => {
+    return options.map(({ title, icon, payload }, ind) => {
       const isSelected = payload === selectedOption;
 
       const handleClick = () => {
@@ -33,7 +34,7 @@ const Switcher = ({ options, squared, handleSelect }: SwitcherProps) => {
           className='flex-1'
           squared={squared}
           onClick={handleClick}
-          key={payload}
+          key={ind}
         >
           {icon && <Icon icon={icon} className='h-5 w-5' />}
           {title}

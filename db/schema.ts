@@ -1,15 +1,14 @@
 import { InferInsertModel, InferSelectModel, relations, sql } from 'drizzle-orm';
 import { integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { nanoid } from 'nanoid';
-
-import { Expense } from '../renderer/types';
+import { Expense } from '../types';
 
 export const products = sqliteTable('products', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => nanoid()),
   name: text('name').notNull(),
-  ref: text('ref').unique(),
+  reference: text('reference'),
   thumbnail: text('thumbnail'),
   company: text('company'),
   category: text('category'),
@@ -24,7 +23,7 @@ export const products = sqliteTable('products', {
 });
 
 export const productsRelations = relations(products, ({ one, many }) => ({
-  shipments: many(shipmentsToProducts),
+  productShipments: many(shipmentsToProducts),
   currentShipment: one(shipments, {
     fields: [products.currentShipmentId],
     references: [shipments.id],
@@ -35,7 +34,7 @@ export const shipments = sqliteTable('shipments', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => nanoid()),
-  shipmentCode: text('shipment_code').unique(),
+  shipmentCode: text('shipment_code'),
   shipmentDate: text('shipment_date').notNull(),
   arrivalDate: text('arrival_date'),
   expenses: text('expenses', { mode: 'json' }).notNull().$type<Expense[]>(),
@@ -50,7 +49,7 @@ export const shipments = sqliteTable('shipments', {
 });
 
 export const shipmentsRelations = relations(shipments, ({ many }) => ({
-  products: many(shipmentsToProducts),
+  shipmentProducts: many(shipmentsToProducts),
 }));
 
 export const shipmentsToProducts = sqliteTable(
@@ -64,6 +63,7 @@ export const shipmentsToProducts = sqliteTable(
       .references(() => shipments.id),
     quantity: integer('quantity').notNull().default(0),
     unitPrice: integer('unit_price').notNull().default(0),
+    expenseSlice: integer('expense_slice').notNull().default(0),
     totalPrice: integer('total_price').notNull().default(0),
   },
   (t) => ({
@@ -72,11 +72,11 @@ export const shipmentsToProducts = sqliteTable(
 );
 
 export const shipmentsToProductsRelations = relations(shipmentsToProducts, ({ one }) => ({
-  products: one(products, {
+  product: one(products, {
     fields: [shipmentsToProducts.productId],
     references: [products.id],
   }),
-  shipments: one(shipments, {
+  shipment: one(shipments, {
     fields: [shipmentsToProducts.shipmentId],
     references: [shipments.id],
   }),

@@ -1,4 +1,4 @@
-import { Expense, Product } from '../../renderer/types';
+import { Expense, Product } from '../../types';
 
 export const calculateExpensesTotal = (expenses: Expense[]) => {
   let total = expenses.reduce((prev, curr) => prev + curr.cost_in_dzd, 0);

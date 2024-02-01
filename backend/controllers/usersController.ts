@@ -18,5 +18,5 @@ export const createUser = catchAsync((req, res, next) => {
 
   const newUser = db.insert(users).values(userBody).returning().get();
 
-  res.status(201).json({ status: 'Utilisateur créé avec succès.', user: newUser });
+  res.status(201).json({ message: 'Utilisateur créé avec succès.', user: newUser });
 });

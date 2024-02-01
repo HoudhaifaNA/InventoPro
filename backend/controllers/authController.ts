@@ -26,7 +26,7 @@ const createAndSendToken = (user: UserSelect, res: Response) => {
 
   delete signedUser['password'];
 
-  res.status(200).json({ status: 'Connecté avec succès.', token, user: signedUser });
+  res.status(200).json({ message: 'Connecté avec succès.', token, user: signedUser });
 };
 
 export const getMe = catchAsync((req, res) => {

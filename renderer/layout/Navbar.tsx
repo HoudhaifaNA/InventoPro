@@ -1,45 +1,20 @@
-'use client';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/router';
+import { nanoid } from 'nanoid';
 import clsx from 'clsx';
 
 import Button from '@/components/Button';
 import Icon from '@/components/Icon';
-
-const LINKS = [
-  {
-    link: '/dashboard',
-    title: 'tableau de bord',
-    icon: 'dashboard',
-  },
-  {
-    link: '/products',
-    title: 'produits',
-    icon: 'product',
-  },
-  {
-    link: '/shipments',
-    title: 'expéditions',
-    icon: 'shipment',
-  },
-  {
-    link: '/stock',
-    title: 'stock',
-    icon: 'stock',
-  },
-  {
-    link: '/settings',
-    title: 'paramètres',
-    icon: 'settings',
-  },
-];
+import { LINKS } from './constants';
+import { useModals } from '@/store';
+import LogoutModal from './LogoutModal';
 
 const NavbarList = () => {
-  const pathname = usePathname();
+  const router = useRouter();
 
   const renderListItems = () => {
     return LINKS.map(({ link, title, icon }) => {
-      const isActive = link === pathname;
+      const isActive = link === router.pathname;
 
       const activeLinkClasses = { 'opacity-60 border-transparent': !isActive, 'border-rose-600': isActive };
 
@@ -60,11 +35,17 @@ const NavbarList = () => {
 };
 
 const Navbar = () => {
+  const { addModal } = useModals();
+
+  const toggleLogoutModal = () => {
+    addModal({ id: nanoid(), title: 'Déconnecter', children: LogoutModal });
+  };
+
   return (
     <nav className='flex items-center justify-between bg-indigo-950'>
       <h1 className='text-lg font-bold text-rose-500'>inventoPro</h1>
       <NavbarList />
-      <Button>Se déconnecter</Button>
+      <Button onClick={toggleLogoutModal}>Se déconnecter</Button>
     </nav>
   );
 };

@@ -5,6 +5,7 @@ import { SaleInsert, products, sales } from '../../db/schema';
 import catchAsync from '../utils/catchAsync';
 import AppError from '../utils/AppError';
 import formatDateTime from '../utils/formatDateTime';
+import { sortResults } from '../utils/APIFeatures';
 
 const checkBodyData = (body: any) => {
   const { type } = body;
@@ -14,19 +15,23 @@ const checkBodyData = (body: any) => {
   }
 };
 
-export const getSales = catchAsync(async (_req, res) => {
-  const sales = await db.query.sales.findMany({
+export const getSales = catchAsync(async (req, res) => {
+  const { orderBy } = req.query;
+
+  const salesList = await db.query.sales.findMany({
+    orderBy: sortResults(orderBy, sales),
+
     with: {
       product: {
         columns: {
           name: true,
-          ref: true,
+          reference: true,
         },
       },
     },
   });
 
-  return res.status(200).json({ results: sales.length, sales });
+  return res.status(200).json({ results: salesList.length, sales: salesList });
 });
 
 export const saleProduct = catchAsync((req, res, next) => {

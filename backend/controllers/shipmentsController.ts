@@ -5,80 +5,27 @@ import { ShipmentInsert, ShipmentToProductInsert, products, shipments, shipments
 import catchAsync from '../utils/catchAsync';
 import AppError from '../utils/AppError';
 import formatDateTime from '../utils/formatDateTime';
-// import { isValidExpenses, isValidProducts } from '../../renderer/types';
 import { calculateExpensesTotal, calculateShipmentTotal } from '../utils/calculations';
+import { isValidExpenses, isValidProducts } from '../../types';
+import { sortResults } from '../utils/APIFeatures';
 
-export interface Expense {
-  id: string;
-  raison: string;
-  cost_in_usd: number;
-  cost_in_rmb: number;
-  cost_in_dzd: number;
-}
-
-export const isValidExpenses = (expenses: any): expenses is Expense[] => {
-  if (!Array.isArray(expenses)) {
-    return false;
-  }
-
-  for (const exp of expenses) {
-    if (
-      typeof exp === 'object' &&
-      typeof exp.id === 'string' &&
-      typeof exp.raison === 'string' &&
-      typeof exp.cost_in_dzd === 'number' &&
-      typeof exp.cost_in_usd === 'number' &&
-      typeof exp.cost_in_rmb === 'number'
-    ) {
-      continue;
-    } else {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-export interface Product {
-  id: string;
-  quantity: number;
-  totalPrice: number;
-}
-
-export const isValidProducts = (products: any): products is Product[] => {
-  if (!Array.isArray(products)) {
-    return false;
-  }
-
-  for (const product of products) {
-    if (
-      typeof product === 'object' &&
-      typeof product.id === 'string' &&
-      typeof product.quantity === 'number' &&
-      typeof product.totalPrice === 'number'
-    ) {
-      continue;
-    } else {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-export const getShipments = catchAsync(async (_req, res) => {
-  const shipments = await db.query.shipments.findMany({
+export const getShipments = catchAsync(async (req, res) => {
+  const { orderBy } = req.query;
+  const shipmentsList = await db.query.shipments.findMany({
+    orderBy: sortResults(orderBy, shipments),
     with: {
-      products: {
+      shipmentProducts: {
         columns: {
-          productId: false,
+          productId: true,
           shipmentId: false,
+          quantity: true,
+          expenseSlice: true,
+          totalPrice: true,
         },
 
         with: {
-          products: {
+          product: {
             columns: {
-              id: true,
               retailPrice: true,
               wholesalePrice: true,
             },
@@ -87,7 +34,27 @@ export const getShipments = catchAsync(async (_req, res) => {
       },
     },
   });
-  return res.status(200).json({ results: shipments.length, shipments });
+  return res.status(200).json({ results: shipmentsList.length, shipments: shipmentsList });
+});
+
+export const getProductShipments = catchAsync(async (req, res) => {
+  const { productId } = req.params;
+  const shipments = await db.query.shipmentsToProducts.findMany({
+    where: eq(shipmentsToProducts.productId, productId),
+    columns: {
+      unitPrice: true,
+    },
+    with: {
+      shipment: {
+        columns: {
+          id: true,
+          shipmentDate: true,
+          shipmentCode: true,
+        },
+      },
+    },
+  });
+  return res.status(200).json({ shipments });
 });
 
 export const createShipment = catchAsync((req, res, next) => {
@@ -117,13 +84,14 @@ export const createShipment = catchAsync((req, res, next) => {
   const newShipment = db.transaction((tx) => {
     const newShipment = tx.insert(shipments).values(newShipmentBody).returning().get();
 
-    productsBought.forEach(({ id, quantity, totalPrice }) => {
-      const unitPrice = (expensesTotal / productsCount + totalPrice) / quantity;
+    productsBought.forEach(({ id, quantity, expenseSlice, totalPrice }) => {
+      const unitPrice = parseFloat(((expenseSlice + totalPrice) / quantity).toFixed(0));
 
       const shipmentToProductBody: ShipmentToProductInsert = {
         productId: id,
         shipmentId: newShipment.id,
         quantity,
+        expenseSlice,
         unitPrice,
         totalPrice,
       };
@@ -207,13 +175,14 @@ export const updateShipment = catchAsync((req, res, next) => {
       }
     });
 
-    productsBought.forEach(({ id, quantity, totalPrice }) => {
-      const unitPrice = (expensesTotal / productsCount + totalPrice) / quantity;
+    productsBought.forEach(({ id, quantity, expenseSlice, totalPrice }) => {
+      const unitPrice = parseFloat(((expenseSlice + totalPrice) / quantity).toFixed(0));
 
       const shipmentToProductBody: ShipmentToProductInsert = {
         productId: id,
         shipmentId: updatedShipment.id,
         quantity,
+        expenseSlice,
         unitPrice,
         totalPrice,
       };
@@ -229,13 +198,26 @@ export const updateShipment = catchAsync((req, res, next) => {
         .where(eq(products.id, id))
         .run();
 
-      tx.update(products)
-        .set({
-          retailPrice: sql`((${products.retailPercentage} * ${unitPrice}) / 100 ) + ${unitPrice}`,
-          wholesalePrice: sql`((${products.wholesalePercentage} * ${unitPrice}) / 100 ) + ${unitPrice}`,
+      const productsWithShipment = tx
+        .select({
+          id: products.id,
+          retailPercentage: products.retailPercentage,
+          wholesalePercentage: products.wholesalePercentage,
         })
-        .where(eq(products.currentShipmentId, updatedShipment.id))
-        .run();
+        .from(products)
+        .where(and(eq(products.currentShipmentId, updatedShipment.id), eq(products.id, id)))
+        .all();
+
+      productsWithShipment.forEach(({ id, retailPercentage, wholesalePercentage }) => {
+        tx.update(products)
+          .set({
+            retailPrice: parseFloat(((retailPercentage / 100) * unitPrice).toFixed(0)) + unitPrice,
+            wholesalePrice: parseFloat(((wholesalePercentage / 100) * unitPrice).toFixed(0)) + unitPrice,
+          })
+          .where(and(eq(products.currentShipmentId, updatedShipment.id), eq(products.id, id)))
+
+          .run();
+      });
 
       if (oldShipmentProduct) {
         tx.update(shipmentsToProducts)

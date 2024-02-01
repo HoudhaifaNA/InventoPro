@@ -1,30 +1,35 @@
 import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from '@tremor/react';
 
-const PLACEHOLDERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+import { GetStock } from '@/types';
 
-const StockTable = () => {
+interface StockTableProps {
+  stock: GetStock['stock'];
+}
+
+const StockTable = ({ stock }: StockTableProps) => {
   return (
     <Table className='h-full bg-white pb-8'>
       <TableHead>
         <TableRow>
-          <TableHeaderCell>Indice</TableHeaderCell>
-          <TableHeaderCell>Nom</TableHeaderCell>
-          <TableHeaderCell>Ref</TableHeaderCell>
-          <TableHeaderCell>Achete</TableHeaderCell>
-          <TableHeaderCell>Sold</TableHeaderCell>
-          <TableHeaderCell>Stock</TableHeaderCell>
+          <TableHeaderCell className='sticky'>Indice</TableHeaderCell>
+          <TableHeaderCell className='sticky'>Nom</TableHeaderCell>
+          <TableHeaderCell className='sticky'>Ref</TableHeaderCell>
+          <TableHeaderCell className='sticky'>Acheté</TableHeaderCell>
+          <TableHeaderCell className='sticky'>Vendu</TableHeaderCell>
+          <TableHeaderCell className='sticky'>Stock</TableHeaderCell>
         </TableRow>
       </TableHead>
       <TableBody>
-        {PLACEHOLDERS.map((el) => {
+        {stock.map((product, ind) => {
+          const { id, name, reference, bought, sold, stock } = product;
           return (
-            <TableRow key={el}>
-              <TableCell>{el} </TableCell>
-              <TableCell>Produit {el}</TableCell>
-              <TableCell>#65FYAA</TableCell>
-              <TableCell>2022</TableCell>
-              <TableCell>4605</TableCell>
-              <TableCell>456</TableCell>
+            <TableRow key={id}>
+              <TableCell>{ind + 1} </TableCell>
+              <TableCell>{name}</TableCell>
+              <TableCell>{reference || '--'}</TableCell>
+              <TableCell>{bought}</TableCell>
+              <TableCell>{sold}</TableCell>
+              <TableCell>{stock}</TableCell>
             </TableRow>
           );
         })}

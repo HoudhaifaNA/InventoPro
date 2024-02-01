@@ -1,71 +1,32 @@
-'use client';
+import { GetStats } from '@/types';
 import { AreaChart, BarChart } from '@tremor/react';
 
-const areaChartdata = [
-  {
-    date: 'Jan 22',
-    'Produits achetés': 2890,
-    'Produits vendus': 2338,
-  },
-  {
-    date: 'Feb 22',
-    'Produits achetés': 2756,
-    'Produits vendus': 2103,
-  },
-  {
-    date: 'Mar 22',
-    'Produits achetés': 3322,
-    'Produits vendus': 2194,
-  },
-  {
-    date: 'Apr 22',
-    'Produits achetés': 3470,
-    'Produits vendus': 2108,
-  },
-  {
-    date: 'May 22',
-    'Produits achetés': 3475,
-    'Produits vendus': 1812,
-  },
-  {
-    date: 'Jun 22',
-    'Produits achetés': 3129,
-    'Produits vendus': 1726,
-  },
-];
+interface ChartsProps extends Pick<GetStats, 'productsStatsPerMonth' | 'topFiveProducts'> {}
 
-const barChartdata = [
-  {
-    name: 'Product A',
-    Ventes: 2488,
-  },
-  {
-    name: 'Product C',
-    Ventes: 1445,
-  },
-  {
-    name: 'Product B',
-    Ventes: 743,
-  },
-  {
-    name: 'Product F',
-    Ventes: 281,
-  },
-  {
-    name: 'Product H',
-    Ventes: 251,
-  },
-];
+const Charts = ({ productsStatsPerMonth, topFiveProducts }: ChartsProps) => {
+  const areaChartdata = productsStatsPerMonth.map(({ month, purchases, sales }) => {
+    return {
+      Mois: month,
+      'Produits achetés': purchases,
+      'Produits vendus': sales,
+    };
+  });
 
-const Charts = () => {
+  const barChartdata = topFiveProducts.map((pr) => {
+    return {
+      Nom: pr.name,
+      Ventes: pr.salesCount,
+    };
+  });
+
   return (
     <div className='flex flex-col gap-16 md:flex-row'>
       <div className='flex-1 rounded bg-white p-4'>
-        <h1>Newsletter revenue over time (USD)</h1>
+        <h1>Statistiques produits par mois</h1>
         <AreaChart
           className='mt-4 h-72'
           data={areaChartdata}
-          index='date'
+          index='Mois'
           categories={['Produits achetés', 'Produits vendus']}
           colors={['indigo', 'cyan']}
         />
@@ -75,7 +36,7 @@ const Charts = () => {
         <BarChart
           className='mt-6'
           data={barChartdata}
-          index='name'
+          index='Nom'
           categories={['Ventes']}
           colors={['indigo']}
           yAxisWidth={48}
