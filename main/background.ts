@@ -16,7 +16,7 @@ if (isProd) {
 }
 
 (async () => {
-  if (1) {
+   if (1) {
     await app.whenReady();
 
     const mainWindow = createWindow('main', {
